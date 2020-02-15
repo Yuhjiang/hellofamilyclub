@@ -42,10 +42,14 @@ class MemberFaceAPI(APIView):
         except Member.DoesNotExist:
             return Response({'status': 'failed', 'message': '未找到成员'})
         user_id = member.name_en
-
-        client.addUser(image=body.get('image'),
-                       image_type=body.get('imageType'), group_id=self.groupId,
-                       user_id=user_id)
+        if body.get('image_url'):
+            image = body['image_url']
+            image_type = 'URL'
+        else:
+            image = body['image_file']
+            image_type = 'BASE64'
+        client.addUser(image=image, image_type=image_type,
+                       group_id=self.groupId, user_id=user_id)
         return Response({'status': 'success', 'message': '注册成功'})
 
     def get(self, request):
