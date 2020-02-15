@@ -19,6 +19,12 @@ DATABASES = {
     }
 }
 
+MONGODB = {
+    'url': 'mongo://localhost:27017'
+}
+IMAGE_DIR = '/Users/yuhao/Pictures/hellofamily'
+IMAGE_URL = 'http://photo.weibo.com/photos/get_all?uid=2019518032&album_id=3555502164890927&count=30&page={}' \
+              '&type=3&__rnd=1546678278092'
 
 REDIS_URL = 'redis://127.0.0.1:6379/1'
 

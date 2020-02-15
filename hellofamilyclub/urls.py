@@ -16,10 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from pictures.views import MemberFaceAPI, MemberFace
+from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex
 from pictures.autocomplete import MemberAutoComplete
 
 urlpatterns = [
+    path('', MemberFaceIndex.as_view(), name='faces'),
     path('face/add/', MemberFace.as_view(), name='add-face'),
     path('member-autocomplete/', MemberAutoComplete.as_view(),
          name='member-autocomplete'),

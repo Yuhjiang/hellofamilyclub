@@ -7,6 +7,7 @@ from aip import AipFace
 
 from .models import Member, Group
 from .forms import MemberForm
+from .service import mongo_db
 
 APP_ID = '14303012'
 API_KEK = 't4GyIHmNULqO50d0RlvY86PV'
@@ -16,15 +17,34 @@ SECRET_KEY = 'VxKOFYYdvvRuk4MGrlyxlg6asArkRUlR'
 client = AipFace(APP_ID, API_KEK, SECRET_KEY)
 
 
-class MemberFace(View):
+class BaseView(View):
+    @staticmethod
+    def get_context_data(request):
+        groups = Group.get_all()
+
+        return {'groups': groups}
+
+
+class MemberFace(BaseView):
     def get(self, request):
         form = MemberForm
-        groups = Group.get_all()
         context = {
             'form': form,
-            'groups': groups,
         }
-        return render(request, "pictures/index.html", context=context)
+        context.update(self.get_context_data(request))
+        return render(request, "pictures/add.html", context=context)
+
+
+class MemberFaceIndex(BaseView):
+    def get(self, request):
+        images = list(mongo_db['images'].find().
+                      limit(20).skip(0))
+        context = {
+            'images': images,
+        }
+        context.update(self.get_context_data(request))
+        return render(request, 'pictures/index.html', context=context)
+
 
 
 class MemberFaceAPI(APIView):

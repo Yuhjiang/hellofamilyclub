@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <title>{% block title %}首页{% endblock %} - hellofamily</title>
     <link href="{% static 'css/layui.css' %}" rel="stylesheet">
     <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.css" rel="stylesheet">
@@ -51,7 +52,7 @@
     </div>
     <div class="container-fluid main">
         <div class="row">
-            <div class="col-9 post-list">
+            <div class="col-9">
                 {% block main %}
                 {% endblock %}
             </div>
