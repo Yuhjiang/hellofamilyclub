@@ -1,0 +1,36 @@
+{% extends 'blog/base.html' %}
+{% load comment_block %}
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+{% block extraHead %}
+<link href="https://cdn.bootcss.com/highlight.js/9.15.10/styles/googlecode.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
+{% endblock %}
+
+{% block main %}
+    {% if post %}
+        <div class="card">
+            <div class="card-header">{{ post.title }}</div>
+            <div class="card-body">
+                <span class="card-link">作者: {{ post.owner.username }}</span>
+                <span class="card-link">分类: <a href="{% url 'category-list' post.category.id %}">
+                    {{ post.category.name }}
+                </a></span>
+                <span class="card-link">标签:
+                {% for tag in post.tag.all %}
+                    <a href="{% url 'tag-list' tag.id %}">{{ tag.name }}</a>
+                {% endfor %}
+                </span>
+                <hr />
+                <p class="card-text">
+                    {% autoescape off %}
+                    {{ post.content_html }}
+                    {% endautoescape %}
+                </p>
+            </div>
+        </div>
+    {% endif %}
+    {% comment_block request.path %}
+{% endblock %}

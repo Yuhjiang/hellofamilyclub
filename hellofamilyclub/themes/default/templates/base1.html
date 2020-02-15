@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/mizuki/themes/default/static/css/layui.css" media="all">
+    <script src="/mizuki/themes/default/static/layui.js" charset="utf-8"></script>
+    {% block title %}
+    <title>首页</title>
+    {% endblock %}
+</head>
+<body>
+{% block categoryNavTop %}
+    <fieldset>
+        <legend>顶部导航</legend>
+        <span class="layui-breadcrumb" lay-separator="|">
+        {% for cate in navs %}
+            <a href="{% url 'category-list' category_id=cate.id %}">{{ cate.name }}</a>
+        {% endfor %}
+        </span>
+    </fieldset>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+<hr />
+{% block categoryNavBottom %}
+    <fieldset>
+        <legend>底部导航</legend>
+        <span class="layui-breadcrumb" lay-separator="|">
+        {% for cate in categories %}
+            <a href="{% url 'category-list' category_id=cate.id %}">{{ cate.name }}</a>
+        {% endfor %}
+        </span>
+    </fieldset>
+{% endblock %}
+
+{% block sidebars %}
+    {% for sidebar in sidebars %}
+        <h4>{{ sidebar.title }}</h4>
+        {{ sidebar.content_html }}
+    {% endfor %}
+{% endblock %}
+<script>
+{% block script %}
+    layui.use('element', function() {
+        const element = layui.element;
+    });
+{% endblock %}
+</script>
+</body>
+</html>
