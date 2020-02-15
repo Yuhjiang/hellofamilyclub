@@ -1,4 +1,15 @@
 asgiref==3.2.3
+baidu-aip==2.2.18.0
+certifi==2019.11.28
+chardet==3.0.4
 Django==3.0.3
+django-redis==4.11.0
+djangorestframework==3.11.0
+hiredis==1.0.1
+idna==2.8
+mysqlclient==1.4.6
 pytz==2019.3
+redis==3.4.1
+requests==2.22.0
 sqlparse==0.3.0
+urllib3==1.25.8

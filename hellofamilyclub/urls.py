@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from pictures.views import MemberFace
+
 urlpatterns = [
+    path('api/face/', MemberFace.as_view(), name='member-face'),
     path('admin/', admin.site.urls),
 ]
