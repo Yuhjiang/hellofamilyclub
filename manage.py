@@ -5,7 +5,9 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hellofamilyclub.settings')
+    profile = os.environ.get('HELLOFAMILYCLUB', 'develop')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE',
+                          'hellofamilyclub.settings.{}'.format(profile))
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
