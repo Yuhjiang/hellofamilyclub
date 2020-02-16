@@ -4,8 +4,8 @@
 import requests
 from datetime import datetime
 
-from pictures.service import mongo_db
 from pictures.service.config import headers, image_url, IMAGE_DIR
+from pictures.service import mongo_db
 from hellofamilyclub.utils.utils import download_picture, logger
 
 
@@ -55,7 +55,7 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
             }
 
             if download is True:
-                download_picture(url, IMAGE_DIR, name)
+                download_picture(url, IMAGE_DIR, name, save=True)
                 data_to_insert['downloaded'] = True
 
             if save is True:
@@ -65,6 +65,9 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
 
         if data_to_save:
             mongo_db['images'].insert_many(data_to_save)
+
+
+# def fetch_weibo_pictures():
 
 
 if __name__ == '__main__':

@@ -8,3 +8,7 @@ MONGODB = {
 IMAGE_DIR = '/Users/yuhao/Pictures/hellofamily'
 image_url = 'http://photo.weibo.com/photos/get_all?uid=2019518032&album_id=3555502164890927&count=30&page={}' \
               '&type=3&__rnd=1546678278092'
+
+APP_ID = '14303012'
+API_KEY = 't4GyIHmNULqO50d0RlvY86PV'
+SECRET_KEY = 'VxKOFYYdvvRuk4MGrlyxlg6asArkRUlR'

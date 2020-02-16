@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'rest_framework',
+    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -8,15 +8,12 @@ from aip import AipFace
 from .models import Member, Group
 from .forms import MemberForm
 from .service import mongo_db
+from .service.config import APP_ID, API_KEY, SECRET_KEY
 from config.models import SideBar
 from hellofamilyclub.utils.utils import page_limit_skip
 
-APP_ID = '14303012'
-API_KEK = 't4GyIHmNULqO50d0RlvY86PV'
-SECRET_KEY = 'VxKOFYYdvvRuk4MGrlyxlg6asArkRUlR'
 
-
-client = AipFace(APP_ID, API_KEK, SECRET_KEY)
+client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 
 
 class BaseView(View):
