@@ -92,12 +92,10 @@ class MemberFaceList(APIView):
             query = self.single_member(request.GET)
         else:
             query = self.all_member()
-        if page and limit:
-            limit, skip = page_limit_skip(page, limit)
-            images = list(mongo_db['images'].find(query, {'_id': 0}).
-                          limit(limit).skip(skip))
-        else:
-            images = list(mongo_db['images'].find(query, {'_id': 0}))
+        limit, skip = page_limit_skip(page, limit)
+        images = list(mongo_db['images'].find(query, {'_id': 0}).
+                      limit(limit).skip(skip))
+
         count = mongo_db['images'].count(query)
         result = {
             'images': images,

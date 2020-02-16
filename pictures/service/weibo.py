@@ -9,14 +9,19 @@ from pictures.service import mongo_db
 from hellofamilyclub.utils.utils import download_picture, logger
 
 
+def get_cookie():
+    return mongo_db['cookie'].find({}).limit(1).sort(
+        'update_time', -1)[0]['cookie']
+
+
 def fetch_json_response(url):
     """
     获取url的json数据
     :param url: 默认小晴的相册
     :return: 返回photo_list
     """
+    headers['Cookie'] = get_cookie()
     res = requests.get(url, headers=headers).json()
-
     if not res['result']:
         logger.error('failed to download data {}'.format(url))
         return []
@@ -68,8 +73,12 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
             mongo_db['images'].insert_many(data_to_save)
 
 
-# def fetch_weibo_pictures():
+def fetch_weibo_pictures():
+    try:
+        get_pictures_info(1, 20, save=True, download=True)
+    except Exception as e:
+        logger.error(e)
 
 
 if __name__ == '__main__':
-    get_pictures_info(1, 20, save=True, download=True)
+    fetch_weibo_pictures()
