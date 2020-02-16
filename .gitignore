@@ -4,3 +4,4 @@
 /user/migrations/
 /pictures/migrations/
 *.gif
+/config/migrations/

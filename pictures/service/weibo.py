@@ -59,11 +59,13 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
                 data_to_insert['downloaded'] = True
 
             if save is True:
-                data_to_save.append(data_to_insert)
+                if not mongo_db['images'].find_one({'name': name}):
+                    # 已经存储过的就不管了,没存储过的存储
+                    data_to_save.append(data_to_insert)
 
         if data_to_save:
             mongo_db['images'].insert_many(data_to_save)
 
 
 if __name__ == '__main__':
-    get_pictures_info(1, 1, save=True, download=True)
+    get_pictures_info(1, 20, save=True, download=True)

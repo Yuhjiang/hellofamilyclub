@@ -47,7 +47,7 @@
         </nav>
         <div class="jumbotron">
             <h1 class="display-4">HelloFamily</h1>
-            <p class="lead">神奇的早安家族粉丝论坛</p>
+            <p class="lead">一个神奇的，做着各种奇怪事情的网站</p>
         </div>
     </div>
     <div class="container-fluid main">
@@ -57,16 +57,16 @@
                 {% endblock %}
             </div>
             <div class="col-3">
-{#                {% block sidebar %}#}
-{#                    {% for sidebar in sidebars %}#}
-{#                    <div class="card sidebar">#}
-{#                        <div class="card-body">#}
-{#                            <h4 class="card-title">{{ sidebar.title }}</h4>#}
-{#                            <p>{{ sidebar.content_html|safe }}</p>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    {% endfor %}#}
-{#                {% endblock %}#}
+                {% block sidebar %}
+                    {% for sidebar in sidebars %}
+                    <div class="card sidebar" style="background-color: #e9ecef">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ sidebar.title }}</h4>
+                            <p>{{ sidebar.content_html|safe }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endblock %}
             </div>
         </div>
     </div>

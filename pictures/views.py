@@ -8,6 +8,8 @@ from aip import AipFace
 from .models import Member, Group
 from .forms import MemberForm
 from .service import mongo_db
+from config.models import SideBar
+from hellofamilyclub.utils.utils import page_limit_skip
 
 APP_ID = '14303012'
 API_KEK = 't4GyIHmNULqO50d0RlvY86PV'
@@ -21,8 +23,8 @@ class BaseView(View):
     @staticmethod
     def get_context_data(request):
         groups = Group.get_all()
-
-        return {'groups': groups}
+        sidebars = SideBar.get_all().filter(owner=request.user)
+        return {'groups': groups, 'sidebars': sidebars}
 
 
 class MemberFace(BaseView):
@@ -37,14 +39,36 @@ class MemberFace(BaseView):
 
 class MemberFaceIndex(BaseView):
     def get(self, request):
-        images = list(mongo_db['images'].find().
-                      limit(20).skip(0))
+        page = request.GET.get('page')
+        limit = request.GET.get('limit')
+        limit, skip = page_limit_skip(page, limit)
+        images = list(mongo_db['images'].find().limit(limit).skip(skip))
+        count = mongo_db['images'].count()
         context = {
             'images': images,
+            'current': page,
+            'limit': limit,
+            'count': count
         }
         context.update(self.get_context_data(request))
         return render(request, 'pictures/index.html', context=context)
 
+
+class MemberFaceList(APIView):
+    def get(self, request):
+        page = request.GET.get('page')
+        limit = request.GET.get('limit')
+        limit, skip = page_limit_skip(page, limit)
+        images = list(mongo_db['images'].find({}, {'_id': 0}).
+                      limit(limit).skip(skip))
+        count = mongo_db['images'].count()
+        result = {
+            'images': images,
+            'current': page,
+            'limit': limit,
+            'count': count
+        }
+        return Response(result)
 
 
 class MemberFaceAPI(APIView):
