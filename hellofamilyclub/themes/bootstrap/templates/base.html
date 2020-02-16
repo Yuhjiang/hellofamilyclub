@@ -27,12 +27,12 @@
                     {% for group in groups %}
                         <li class="nav-item">
                         {% if category and category.id == group.id %}
-                            <a class="nav-link active" href="#">
-                                {{ group.name }}
+                            <a class="nav-link active" href="{{ group.homepage }}">
+                                {{ group.name_jp }}
                             </a>
                         {% else %}
-                            <a class="nav-link" href="#">
-                                {{ group.name }}
+                            <a class="nav-link" href="{{ group.homepage }}">
+                                {{ group.name_jp }}
                             </a>
                         {% endif %}
                         </li>
@@ -75,8 +75,14 @@
         <div class="container-fluid">
             <hr />
         </div>
-        <div class="container-fluid power">
+        <div class="container-fluid power d-flex justify-content-around">
             <span class="text-muted">Power by Yuhjiang</span>
+            <span>
+                <a href="http://www.beian.miit.gov.cn" class="card-link">浙ICP备17021080号-2</a>
+            </span>
+            <span>
+                <a href="http://hellofamily.club" class="card-link">hellofamily.club</a>
+            </span>
         </div>
         {% endblock %}
     </footer>

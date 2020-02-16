@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}
+Hello!Project History
+{% endblock %}
+
+{% block main %}
+<ul class="layui-timeline" style="background-color: #e9ecef">
+    {% for group in groups_ordered %}
+    <li class="layui-timeline-item">
+        <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+        <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">{{ group.created_time }}</h3>
+            <p>
+                {{ group.name_jp }}
+            </p>
+            <img src="{{ group.favicon }}" alt="{{ group.name_jp }}">
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

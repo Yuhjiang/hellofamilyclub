@@ -23,8 +23,24 @@ class BaseView(View):
     @staticmethod
     def get_context_data(request):
         groups = Group.get_all()
-        sidebars = SideBar.get_all().filter(owner=request.user)
+        if request.user.is_authenticated:
+            sidebars = SideBar.get_all().filter(owner=request.user)
+        else:
+            sidebars = SideBar.objects.none()
         return {'groups': groups, 'sidebars': sidebars}
+
+
+class GroupProfile(BaseView):
+    """
+    显示Hello！Project所有组合，时间线
+    """
+    def get(self, request):
+        groups = Group.objects.filter().order_by('created_time')
+        context = {
+            'groups_ordered': groups
+        }
+        context.update(self.get_context_data(request))
+        return render(request, 'pictures/profile.html', context=context)
 
 
 class MemberFace(BaseView):
@@ -34,7 +50,7 @@ class MemberFace(BaseView):
             'form': form,
         }
         context.update(self.get_context_data(request))
-        return render(request, "pictures/add.html", context=context)
+        return render(request, 'pictures/add.html', context=context)
 
 
 class MemberFaceIndex(BaseView):
