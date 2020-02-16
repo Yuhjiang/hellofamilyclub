@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path
 
 from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
-    MemberFaceList, GroupProfile
+    MemberFaceList, GroupProfile, MemberFaceListDate
 from pictures.autocomplete import MemberAutoComplete
 
 urlpatterns = [
+    path('api/pictures/timeline/', MemberFaceListDate.as_view(),
+         name='faces-list-timeline'),
     path('groups/profile/', GroupProfile.as_view(), name='groups-profile'),
     path('api/pictures/', MemberFaceList.as_view(), name='faces-list'),
     path('', MemberFaceIndex.as_view(), name='faces'),

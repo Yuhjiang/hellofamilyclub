@@ -2,6 +2,8 @@
 识别模块
 """
 import os
+import time
+import requests
 
 import django
 
@@ -35,6 +37,8 @@ def recognize_multi(name, url, image_type, save=False):
 
     if image_type == 'BASE64':
         image = image_to_base64(os.path.join(IMAGE_DIR, name))
+        if not image:
+            return None
     else:
         image = url
     group_id_list = 'Hello_Project'
@@ -62,20 +66,24 @@ def face_to_database(name, response):
                     'id': member.id,
                     'name_en': member.name_en,
                     'name_jp': member.name_jp,
-                    'group': member.group__name,
+                    'group': member.group.name_en,
                 })
             except Member.DoesNotExist:
                 logger.error("Not Found {}".format(name_en))
     members = {'$set': {'members': members, 'size': len(members),
                         'recognized': True}}
-    mongo_db['images'].update({'name': name}, members)
+    mongo_db['images'].update_one({'name': name}, members)
 
 
 def recognize_all_pictures():
     pictures = list(mongo_db['images'].find({'recognized': False}))
     for picture in pictures:
-        recognize_multi(picture['name'], url=picture['url'],
-                        image_type='BASE64', save=True)
+        try:
+            recognize_multi(picture['name'], url=picture['url'],
+                            image_type='BASE64', save=True)
+        except requests.exceptions.ConnectionError as e:
+            logger.error(e)
+        time.sleep(0.4)
 
 
 if __name__ == '__main__':
@@ -83,5 +91,5 @@ if __name__ == '__main__':
     # recognize_multi('785f6650gy1gbwzacr3n5g20bo0fa4qy.gif',
     #                 'https://wx1.sinaimg.cn/mw690/785f6650gy1gbwzacr3n5g20bo0fa4qy.gif',
     #                 'BASE64')
-    # recognize_all_pictures()
+    recognize_all_pictures()
     pass

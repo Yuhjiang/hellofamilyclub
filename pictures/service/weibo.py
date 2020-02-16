@@ -48,20 +48,21 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
                 'name': name,
                 'url': url,
                 'created_time': created_time,
+                'created_date': created_time.replace(hour=0, minute=0, second=0),
                 'members': [],
                 'size': 0,              # 图片里的人数
                 'downloaded': False,    # 是否被下载到本地
                 'recognized': False       # 是否被识别过
             }
 
-            if download is True:
+            exist = mongo_db['images'].find_one({'name': name})
+            if download is True and exist and not exist['downloaded']:
                 download_picture(url, IMAGE_DIR, name, save=True)
                 data_to_insert['downloaded'] = True
 
-            if save is True:
-                if not mongo_db['images'].find_one({'name': name}):
-                    # 已经存储过的就不管了,没存储过的存储
-                    data_to_save.append(data_to_insert)
+            if save is True and not exist:
+                # 已经存储过的就不管了,没存储过的存储
+                data_to_save.append(data_to_insert)
 
         if data_to_save:
             mongo_db['images'].insert_many(data_to_save)

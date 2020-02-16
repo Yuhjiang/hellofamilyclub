@@ -57,6 +57,9 @@
                 {% endblock %}
             </div>
             <div class="col-3">
+                {% block extraSidebar %}
+
+                {% endblock %}
                 {% block sidebar %}
                     {% for sidebar in sidebars %}
                     <div class="card sidebar" style="background-color: #e9ecef">

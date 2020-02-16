@@ -24,7 +24,8 @@ class BaseView(View):
             sidebars = SideBar.get_all().filter(owner=request.user)
         else:
             sidebars = SideBar.objects.none()
-        return {'groups': groups, 'sidebars': sidebars}
+        members = Member.objects.filter().only('id', 'name')
+        return {'groups': groups, 'sidebars': sidebars, 'members': members}
 
 
 class GroupProfile(BaseView):
@@ -61,25 +62,68 @@ class MemberFaceIndex(BaseView):
             'images': images,
             'current': page,
             'limit': limit,
-            'count': count
+            'count': count,
         }
         context.update(self.get_context_data(request))
         return render(request, 'pictures/index.html', context=context)
 
 
 class MemberFaceList(APIView):
+    @staticmethod
+    def all_member():
+        return {}
+
+    @staticmethod
+    def single_member(query):
+        return {'members.id': int(query['member1'])}
+
+    @staticmethod
+    def double_member(query):
+        member_ids = [int(query['member1']), int(query['member2'])]
+        return {'members.id': {'$in': member_ids}, 'size': 2}
+
     def get(self, request):
         page = request.GET.get('page')
         limit = request.GET.get('limit')
-        limit, skip = page_limit_skip(page, limit)
-        images = list(mongo_db['images'].find({}, {'_id': 0}).
-                      limit(limit).skip(skip))
-        count = mongo_db['images'].count()
+
+        if request.GET.get('member2') and int(request.GET['member2']):
+            query = self.double_member(request.GET)
+        elif request.GET.get('member1') and int(request.GET['member1']):
+            query = self.single_member(request.GET)
+        else:
+            query = self.all_member()
+        if page and limit:
+            limit, skip = page_limit_skip(page, limit)
+            images = list(mongo_db['images'].find(query, {'_id': 0}).
+                          limit(limit).skip(skip))
+        else:
+            images = list(mongo_db['images'].find(query, {'_id': 0}))
+        count = mongo_db['images'].count(query)
         result = {
             'images': images,
             'current': page,
             'limit': limit,
             'count': count
+        }
+        return Response(result)
+
+
+class MemberFaceListDate(APIView):
+    def get(self, request):
+        member_id = request.GET.get('member1')
+        images = list(mongo_db['images'].aggregate([
+            {'$match': {'members.id': int(member_id)}},
+            {'$group': {
+                '_id': '$created_date',
+                'pictures': {'$push': {'name': '$name', 'url': '$url'}},
+                'date': {'$first': 1}
+            }},
+            {'$sort': {'_id': -1}},
+        ]))
+        for image in images:
+            image['date'] = image['_id'].strftime('%Y年%m月%d日')
+        result = {
+            'images': images
         }
         return Response(result)
 

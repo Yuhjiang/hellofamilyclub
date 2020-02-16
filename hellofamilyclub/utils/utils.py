@@ -22,6 +22,9 @@ def image_to_base64(image_path):
         :param image_path: 图片位置
         :return: base64值
         """
+    if not os.path.exists(image_path):
+        return None
+
     with open(image_path, 'rb') as image:
         image_base64 = base64.b64encode(image.read())
 

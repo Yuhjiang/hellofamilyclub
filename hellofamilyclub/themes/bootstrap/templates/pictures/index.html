@@ -3,7 +3,7 @@
 {% block main %}
     <div id="photo-list" style="height: 1270px; background-color: #e9ecef">
     {% for image in images %}
-        <div class="photo-item w-25 float-left p-3 mh-25" onmouseover="displayNormal(this)"
+        <div class="photo-item w-25 float-left p-3 mh-25"
              style="height: 250px; overflow: hidden">
             <a href="{{ image.url }}" target="_blank" class="m-auto">
                 <img src="{{ image.url }}" class="img-thumbnail m-auto"
@@ -15,6 +15,25 @@
     <div id="pagination" class="float-right">
 
     </div>
+{% endblock %}
+
+{% block extraSidebar %}
+<div class="card sidebar" style="background-color: #e9ecef">
+    <div class="card-body">
+        <h4 class="card-title">筛选栏</h4>
+        <div class="input-group mb-3">
+            <select class="custom-select" id="member_name">
+                <option value=0 selected>Choose...</option>
+                {% for member in members %}
+                    <option value="{{ member.id }}">{{ member.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="member_select">选择成员</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scriptImport %}
@@ -49,10 +68,23 @@
         });
     });
 
+    const resetPage = (response) => {
+        var laypage = layui.laypage;
+        laypage.render({
+            elem: 'pagination',
+            count: response.data.count,
+            limit: 20,
+            curr: 1,
+            jump: function(obj, first) {
+                handleJump(obj, first);
+            },
+        });
+    };
+    const member_name = document.getElementById('member_name');
+
     const renderPhotoList = (data) => {
         var t = "";
         for (let i = 0; i < data.length; i++) {
-            console.log(data[i]);
             t += `<div class="photo-item w-25 float-left p-3 mh-25"
              style="height: 250px; overflow: hidden">
             <a href="${data[i].url}" target="_blank" class="m-auto">
@@ -61,7 +93,6 @@
             </a>
             </div>`
         }
-        console.log(t);
         return t
     };
     const handleJump = (obj, first) => {
@@ -69,23 +100,45 @@
             return
         }
         const photo_list = document.getElementById('photo-list');
+        let query = {page: obj.curr, limit: {{limit }}};
+        if (member_name.value) {
+            query = {...query, member1: member_name.value}
+        }
         axios({
             url: '/api/pictures/?format=json',
             method: 'get',
             headers: {'Content-Type': 'application/x-www-form-urlencoded',},
-            params: {page: obj.curr, limit: {{limit }}},
+            params: query,
             xsrfCookieName: 'csrftoken',
             xsrfHeaderName: 'X-CSRFToken',
         }
         ).then(function(response) {
-                console.log(response);
                 photo_list.innerHTML = renderPhotoList(response.data.images);
             }).catch(function(response) {
                 alert(response);
             })
-    }
-    displayNormal = function(obj) {
-        console.log(obj);
-    }
+    };
+
+    const member_select = document.getElementById('member_select');
+    member_select.onclick = function() {
+        const photo_list = document.getElementById('photo-list');
+        let query = {page: 1, limit: 20};
+        if (member_name.value) {
+            query = {member1: member_name.value}
+        }
+        axios({
+            url: '/api/pictures/?format=json',
+            method: 'get',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded',},
+            params: query,
+            xsrfCookieName: 'csrftoken',
+            xsrfHeaderName: 'X-CSRFToken',
+        }).then(function(response) {
+            photo_list.innerHTML = renderPhotoList(response.data.images);
+            resetPage(response);
+        }).catch(function(response) {
+            alert(response);
+        })
+    };
 </script>
 {% endblock %}
