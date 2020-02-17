@@ -6,6 +6,7 @@ import time
 import requests
 
 import django
+from django.conf import settings
 
 from aip import AipFace
 
@@ -91,5 +92,6 @@ if __name__ == '__main__':
     # recognize_multi('785f6650gy1gbwzacr3n5g20bo0fa4qy.gif',
     #                 'https://wx1.sinaimg.cn/mw690/785f6650gy1gbwzacr3n5g20bo0fa4qy.gif',
     #                 'BASE64')
-    recognize_all_pictures()
+    # recognize_all_pictures()
+    print(settings.IMAGE_DIR)
     pass
