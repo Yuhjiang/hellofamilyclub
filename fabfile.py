@@ -13,7 +13,7 @@ env.PROJECT_NAME = 'hellofamily'
 env.PROJECT_DIR = '/var/www/hellofamilyclub'
 env.SETTING_BASE = 'hellofamilyclub/settings/base.py'
 env.VENV_PATH = os.path.join(env.PROJECT_DIR, 'venv')
-env.VENV_ACTIVATE = os.path.join(env.DEPLOY_PATH, 'bin', 'activate')
+env.VENV_ACTIVATE = os.path.join(env.VENV_PATH, 'bin', 'activate')
 env.PROCESS_COUNT = 2
 env.PORT_PREFIX = 800
 
@@ -56,8 +56,6 @@ def _ensure_virtualenv():
     if exists(env.VENV_ACTIVATE):
         return True
     if not exists(env.VENV_PATH):
-        print(113)
-        return False
         run('mkdir -p %s' % env.VENV_PATH)
 
     run('python3 -m venv %s' % env.VENV_PATH)
@@ -76,10 +74,11 @@ def _reload_supervisor(deploy_path, profile):
     upload_template(filename, destination, context=context, use_jinja=True,
                     template_dir=template_dir)
     with settings(warn_only=True):
-        result = run('supervisorctl -c %s/supervisord_dev.conf shutdown'
-                     % deploy_path)
+        result = run('%s/supervisorctl -c %s/supervisord.conf shutdown'
+                     % (os.path.join(env.VENV_PATH, 'bin'), deploy_path))
         if result:
-            run('supervisord -c %s/supervisord_dev.conf' % deploy_path)
+            run('%s/supervisord -c %s/supervisord.conf' % (
+                os.path.join(env.VENV_PATH, 'bin'), deploy_path))
 
 @task
 @roles('myserver')
@@ -99,4 +98,4 @@ def deploy(version, profile):
         run('cd %s && git pull --force && pip install -r requirements.txt' %
             env.PROJECT_DIR)
         _reload_supervisor(env.PROJECT_DIR, profile)
-        run('echo yes | %s/manage.py collectstatic' % env.PROJECT_DIR)
+        run('export HELLOFAMILYCLUB=production && echo yes | %s/manage.py collectstatic' % env.PROJECT_DIR)
