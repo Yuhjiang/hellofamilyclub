@@ -4,8 +4,7 @@
 import requests
 from datetime import datetime
 
-from pictures.service.config import headers, image_url, IMAGE_DIR
-from pictures.service import mongo_db
+from pictures.service.config import headers, image_url, IMAGE_DIR, mongo_db
 from hellofamilyclub.utils.utils import download_picture, logger
 
 

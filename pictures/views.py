@@ -7,7 +7,7 @@ from aip import AipFace
 
 from .models import Member, Group
 from .forms import MemberForm
-from .service import mongo_db
+from .service.config import mongo_db
 from .service.config import APP_ID, API_KEY, SECRET_KEY
 from config.models import SideBar
 from hellofamilyclub.utils.utils import page_limit_skip

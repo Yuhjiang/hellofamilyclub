@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = False
 
 DATABASES = {
     'default': {
@@ -15,7 +15,7 @@ DATABASES = {
         }
     }
 }
-
+ALLOWED_HOSTS = ['hellofamily.club']
 
 MONGODB = {
     'url': 'mongo://localhost:27017'
@@ -38,3 +38,5 @@ CACHES = {
         'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
     }
 }
+
+STATIC_ROOT = '/tmp/static'

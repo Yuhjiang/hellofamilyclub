@@ -16,10 +16,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE',
 django.setup()
 
 
-from pictures.service.config import API_KEY, APP_ID, SECRET_KEY, IMAGE_DIR
+from pictures.service.config import API_KEY, APP_ID, SECRET_KEY, IMAGE_DIR, \
+    mongo_db
 from pictures.models import Member
 from hellofamilyclub.utils.utils import logger, image_to_base64
-from pictures.service import mongo_db
 
 client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 
@@ -92,6 +92,5 @@ if __name__ == '__main__':
     # recognize_multi('785f6650gy1gbwzacr3n5g20bo0fa4qy.gif',
     #                 'https://wx1.sinaimg.cn/mw690/785f6650gy1gbwzacr3n5g20bo0fa4qy.gif',
     #                 'BASE64')
-    # recognize_all_pictures()
-    print(settings.IMAGE_DIR)
+    recognize_all_pictures()
     pass

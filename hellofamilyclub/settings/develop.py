@@ -40,3 +40,5 @@ CACHES = {
         'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
     }
 }
+
+ALLOWED_HOSTS = []
