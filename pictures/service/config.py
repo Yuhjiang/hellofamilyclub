@@ -1,16 +1,13 @@
 import os
 
 import django
-from django.conf import settings
-
-from pymongo import MongoClient
-
-
 profile = os.environ.get('HELLOFAMILYCLUB', 'develop')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE',
                       'hellofamilyclub.settings.{}'.format(profile))
-django.setup()
+# django.setup()
+from django.conf import settings
 
+from pymongo import MongoClient
 
 User_Agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) ' \
              'Chrome/22.0.1207.1 Safari/537.1'
@@ -19,6 +16,10 @@ headers = {'User-Agent': User_Agent, 'Cookie': Cookie}
 MONGODB = settings.MONGODB
 IMAGE_DIR = settings.IMAGE_DIR
 image_url = settings.IMAGE_URL
+APP_ID = settings.APP_ID
+API_KEY = settings.API_KEY
+SECRET_KEY = settings.SECRET_KEY
+
 
 db_client = MongoClient(MONGODB['url'])
 mongo_db = db_client['hellofamily']

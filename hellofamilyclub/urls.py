@@ -24,7 +24,7 @@ urlpatterns = [
     path('api/cookie/', CookieApi.as_view(), name='cookie'),
     path('api/pictures/timeline/', MemberFaceListDate.as_view(),
          name='faces-list-timeline'),
-    path('groups/profile/', GroupProfile.as_view(), name='groups-profile'),
+    path('groups/timeline/', GroupProfile.as_view(), name='groups-timeline'),
     path('api/pictures/', MemberFaceList.as_view(), name='faces-list'),
     path('', MemberFaceIndex.as_view(), name='faces'),
     path('face/add/', MemberFace.as_view(), name='add-face'),

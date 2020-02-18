@@ -4,24 +4,24 @@
 import os
 import time
 import requests
+import logging
 
 import django
-from django.conf import settings
-
-from aip import AipFace
-
-profile = os.environ.get('HELLOFAMILYCLUB', 'develop')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE',
-                      'hellofamilyclub.settings.{}'.format(profile))
 django.setup()
 
+from aip import AipFace
 
 from pictures.service.config import API_KEY, APP_ID, SECRET_KEY, IMAGE_DIR, \
     mongo_db
 from pictures.models import Member
-from hellofamilyclub.utils.utils import logger, image_to_base64
+from hellofamilyclub.utils.utils import image_to_base64
+
 
 client = AipFace(APP_ID, API_KEY, SECRET_KEY)
+logging.basicConfig(
+    level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s -'
+                               ' %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def recognize_multi(name, url, image_type, save=False):
@@ -82,9 +82,9 @@ def recognize_all_pictures():
         try:
             recognize_multi(picture['name'], url=picture['url'],
                             image_type='BASE64', save=True)
-        except requests.exceptions.ConnectionError as e:
+        except Exception as e:
             logger.error(e)
-        time.sleep(0.4)
+        time.sleep(0.5)
 
 
 if __name__ == '__main__':

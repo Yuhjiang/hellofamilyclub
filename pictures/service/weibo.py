@@ -1,11 +1,18 @@
 """
 爬虫下载照片
 """
+import os
 import requests
+import logging
 from datetime import datetime
 
 from pictures.service.config import headers, image_url, IMAGE_DIR, mongo_db
-from hellofamilyclub.utils.utils import download_picture, logger
+from hellofamilyclub.utils.utils import download_picture
+
+logging.basicConfig(
+    level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s -'
+                               ' %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def get_cookie():
@@ -60,9 +67,13 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
             }
 
             exist = mongo_db['images'].find_one({'name': name})
-            if download is True and exist and not exist['downloaded']:
-                download_picture(url, IMAGE_DIR, name, save=True)
-                data_to_insert['downloaded'] = True
+            if download is True:
+                if (exist and not exist['downloaded']) or not exist:
+                    # 存在记录但没下载过，或者没有记录
+                    image_dir = os.path.join(
+                        IMAGE_DIR, str(created_time.date()))
+                    download_picture(url, image_dir, name, save=True)
+                    data_to_insert['downloaded'] = True
 
             if save is True and not exist:
                 # 已经存储过的就不管了,没存储过的存储
@@ -76,7 +87,7 @@ def fetch_weibo_pictures():
     try:
         get_pictures_info(1, 20, save=True, download=True)
     except Exception as e:
-        logger.error(e)
+        logger.error(e.args)
 
 
 if __name__ == '__main__':

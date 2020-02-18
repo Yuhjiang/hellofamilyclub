@@ -53,14 +53,13 @@ Hello!Project History
         var t = "";
         for (let i = 0; i < images.length; i++) {
             var temp = `<div class="row">`;
-            t += `<li class="layui-timeline-item" style="min-height: 300px">
+            t += `<li class="layui-timeline-item">
         <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
         <div class="layui-timeline-content layui-text">
             <h3 class="layui-timeline-title">${images[i].date}</h3>
 <div class=container-fluid>`;
             for (let j = 0; j < images[i].pictures.length; j++) {
-                temp += `<div class="photo-item w-25 p-3 mh-25"
-             style="height: 250px; overflow: hidden">
+                temp += `<div class="photo-item w-25 p-3 mh-25" style="overflow: hidden">
                 <img src="${images[i].pictures[j].url}" class="img-thumbnail m-auto"
                      alt="${images[i].pictures[j].name}"></div>`;
             }
