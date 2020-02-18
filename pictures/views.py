@@ -120,20 +120,20 @@ class MemberFaceList(APIView):
         member_1 = int(query['member1'])
         member_2 = int(query['member2'])
         query = {'$or': [{'members.1.id': member_1, 'members.0.id': member_2},
-                 {'members.0.id': member_2, 'members.1.id': member_1}],
+                 {'members.1.id': member_2, 'members.0.id': member_1}],
                  'size': 2}
         return query
 
     def get(self, request):
         page = request.GET.get('page')
         limit = request.GET.get('limit')
-
         if request.GET.get('member2') and int(request.GET['member2']):
             query = self.double_member(request.GET)
         elif request.GET.get('member1') and int(request.GET['member1']):
             query = self.single_member(request.GET)
         else:
             query = self.all_member()
+        print(query)
         limit, skip = page_limit_skip(page, limit)
         images = list(mongo_db['images'].find(query, {'_id': 0}).
                       limit(limit).skip(skip))
@@ -156,7 +156,6 @@ class MemberFaceListDate(MemberFaceList):
             query = self.single_member(request.GET)
         else:
             query = self.all_member()
-        print(query)
         images = list(mongo_db['images'].aggregate([
             {'$match': query},
             {'$group': {
