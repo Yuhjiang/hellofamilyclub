@@ -7,6 +7,20 @@
         {{ form}}
         <button type="button" class="btn btn-primary" id="addFace">提交</button>
     </form>
+    <form id="addCookie" method="POST">
+        {% csrf_token %}
+        <div class="card-body">
+            <h4 class="card-title">更新Cookie</h4>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="输入Cookie" id="input-add-cookie">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="button-add-cookie">
+                        确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}
 
 {% block scriptImport %}
@@ -35,6 +49,26 @@
             xsrfHeaderName: 'X-CSRFToken',
         }
     ).then(function(response) {
+            alert(response.data.message);
+        }).catch(function(response) {
+            alert(response);
+        })
+    };
+    const buttonAddCookie = document.getElementById('button-add-cookie');
+    const addCookie = document.getElementById('input-add-cookie');
+    buttonAddCookie.onclick = function() {
+        let data = Qs.stringify({
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]')[0].value,
+            cookie: addCookie.value,
+        });
+        axios({
+            url: '/api/cookie/?format=json',
+            method: 'post',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            data: data,
+            xsrfCookieName: 'csrftoken',
+            xsrfHeaderName: 'X-CSRFToken',
+        }).then(function(response) {
             alert(response.data.message);
         }).catch(function(response) {
             alert(response);

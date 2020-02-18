@@ -17,10 +17,11 @@ from django.contrib import admin
 from django.urls import path
 
 from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
-    MemberFaceList, GroupProfile, MemberFaceListDate
+    MemberFaceList, GroupProfile, MemberFaceListDate, CookieApi
 from pictures.autocomplete import MemberAutoComplete
 
 urlpatterns = [
+    path('api/cookie/', CookieApi.as_view(), name='cookie'),
     path('api/pictures/timeline/', MemberFaceListDate.as_view(),
          name='faces-list-timeline'),
     path('groups/profile/', GroupProfile.as_view(), name='groups-profile'),

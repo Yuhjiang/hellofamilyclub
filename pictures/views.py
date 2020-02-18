@@ -1,5 +1,9 @@
+from datetime import datetime
+
 from django.shortcuts import render, get_object_or_404, reverse
 from django.views import View
+from django.conf import settings
+from django.utils.decorators import method_decorator
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,12 +12,20 @@ from aip import AipFace
 from .models import Member, Group
 from .forms import MemberForm
 from .service.config import mongo_db
-from .service.config import APP_ID, API_KEY, SECRET_KEY
 from config.models import SideBar
 from hellofamilyclub.utils.utils import page_limit_skip
+from hellofamilyclub.utils.decorators import admin_required
 
 
+APP_ID = settings.APP_ID
+API_KEY = settings.API_KEY
+SECRET_KEY = settings.SECRET_KEY
 client = AipFace(APP_ID, API_KEY, SECRET_KEY)
+
+
+"""
+后端渲染页面
+"""
 
 
 class BaseView(View):
@@ -42,6 +54,7 @@ class GroupProfile(BaseView):
 
 
 class MemberFace(BaseView):
+    @method_decorator(admin_required)
     def get(self, request):
         form = MemberForm
         context = {
@@ -66,6 +79,30 @@ class MemberFaceIndex(BaseView):
         }
         context.update(self.get_context_data(request))
         return render(request, 'pictures/index.html', context=context)
+
+
+"""
+Restful API
+"""
+
+
+class CookieApi(APIView):
+    @staticmethod
+    def post(request):
+        body = request.POST
+        if body.get('cookie'):
+            current_time = datetime.now()
+            result = mongo_db['cookie'].insert_one({
+                'cookie': body['cookie'],
+                'update_time': current_time,
+            })
+            return Response({'result': result.acknowledged,
+                             'message': '成功更新Cookie'})
+        else:
+            return Response({
+                'result': False,
+                'message': 'Cookie更新失败'
+            })
 
 
 class MemberFaceList(APIView):
