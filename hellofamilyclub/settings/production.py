@@ -21,7 +21,7 @@ ALLOWED_HOSTS = ['hellofamily.club']
 MONGODB = {
     'url': 'mongodb://localhost:27017'
 }
-IMAGE_DIR = '/Users/yuhao/Pictures/hellofamily'
+IMAGE_DIR = '/home/images/hellofamily'
 IMAGE_URL = 'http://photo.weibo.com/photos/get_all?uid=2019518032&album_id=3555502164890927&count=30&page={}' \
               '&type=3&__rnd=1546678278092'
 # 百度人工智能key
