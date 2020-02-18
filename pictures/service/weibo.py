@@ -103,8 +103,7 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
 def fetch_weibo_pictures():
     logger.info("fetch_weibo_pictures start!")
     try:
-        # headers['Cookie'] = get_cookie()
-        headers['Cookie'] = 'SINAGLOBAL=4041173730931.1226.1574765168991; UOR=,,login.sina.com.cn; wvr=6; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WF5SSkZaQym.hgJRur5llA05JpX5KMhUgL.Fo2Ne0MES0qESKM2dJLoIpBLxKnLBKeLBonLxK-LBKBL129KKntt; ALF=1613358465; SSOLoginState=1581822469; SCF=ApNwV7RyD2LbNpA2Wx55Si5g_kv1RJZBow0bNnoFImEutZb1N2JTpeYCSbBYSuOVuWlbV4U_Bd0EaFZmTROXDhU.; SUB=_2A25zTMJXDeRhGedJ6FUT9yjOzjuIHXVQO7SfrDV8PUNbmtAfLXjAkW9NVjU2YmSRcIwK6qfxcrb4t8Gw-5zgTgxk; SUHB=05irJOikA-HOFQ; _s_tentry=login.sina.com.cn; Apache=5393615496765.789.1581822498293; ULV=1581822499262:8:1:1:5393615496765.789.1581822498293:1580023421921; webim_unReadCount=%7B%22time%22%3A1581860439889%2C%22dm_pub_total%22%3A0%2C%22chat_group_client%22%3A0%2C%22allcountNum%22%3A0%2C%22msgbox%22%3A0%7D'
+        headers['Cookie'] = get_cookie()
         get_pictures_info(1, 20, save=True, download=True)
     except Exception as e:
         logger.error(e)

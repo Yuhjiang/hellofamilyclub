@@ -74,8 +74,8 @@ def _reload_supervisor(deploy_path, profile):
     upload_template(filename, destination, context=context, use_jinja=True,
                     template_dir=template_dir)
     with settings(warn_only=True):
-        result = run('%s/supervisorctl shutdown'
-                     % (os.path.join(env.VENV_PATH, 'bin')))
+        result = run('%s/supervisorctl -c %s/supervisord.conf shutdown'
+                     % (os.path.join(env.VENV_PATH, 'bin'), deploy_path))
         if result:
             run('%s/supervisord -c %s/supervisord.conf' % (
                 os.path.join(env.VENV_PATH, 'bin'), deploy_path))
@@ -95,7 +95,7 @@ def deploy(version, profile):
     """
     _ensure_virtualenv()
     with prefix('source %s' % env.VENV_ACTIVATE):
-        run('cd %s && git pull --force && pip install -r requirements.txt' %
+        run('cd %s && git reset --hard origin/master && git pull --force && pip install -r requirements.txt' %
             env.PROJECT_DIR)
         _reload_supervisor(env.PROJECT_DIR, profile)
         run('export HELLOFAMILYCLUB=production && echo yes | %s/manage.py collectstatic' % env.PROJECT_DIR)
