@@ -16,7 +16,7 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
 from pictures.service.weibo import fetch_weibo_pictures
 from pictures.service.recognize import recognize_all_pictures
-from pictures.service import db_client
+from pictures.service.config import db_client
 
 
 logging.basicConfig(filename='/Users/yuhao/log/job.log', filemode='a')

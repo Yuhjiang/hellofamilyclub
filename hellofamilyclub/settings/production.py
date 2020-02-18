@@ -45,3 +45,13 @@ CACHES = {
 }
 
 STATIC_ROOT = '/tmp/static'
+
+ADMINS = MANAGERS = (
+    'yuhao', 'jiang.yuhao0809@gmail.com',
+)
+
+EMAIL_HOST = 'smtp.exmail.qq.com'
+EMAIL_HOST_USER = 'jiangyuhao@hellofamily.club'
+EMAIL_HOST_PASSWORD = '1230zxcvAS'
+DEFAULT_FROM_EMAIL = 'jiangyuhao@hellofamily.club'
+EMAIL_SUBJECT_PREFIX = 'hellofamily.club邮件报警'

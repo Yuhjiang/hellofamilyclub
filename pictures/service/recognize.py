@@ -3,7 +3,6 @@
 """
 import os
 import time
-import requests
 import logging
 
 import django
@@ -14,7 +13,7 @@ from aip import AipFace
 from pictures.service.config import API_KEY, APP_ID, SECRET_KEY, IMAGE_DIR, \
     mongo_db
 from pictures.models import Member
-from hellofamilyclub.utils.utils import image_to_base64
+from hellofamilyclub.utils.utils import image_to_base64, download_picture
 
 
 client = AipFace(APP_ID, API_KEY, SECRET_KEY)
@@ -24,20 +23,29 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def recognize_multi(name, url, image_type, save=False):
+def recognize_multi(picture: dict, url: str, image_type: str, save=False,
+                    redownload=False):
     """
     M:N识别人像，
-    :param name: 图片名
+    :param picture: mongo存储记录，需要使用'name'和'created_time'字段
     :param url: 图片地址
     :param image_type: 图片名，从本地去取
     :param save: 是否存数据库
+    :param redownload: 需要识别的图片在本地不存在时，是否重新下载它
     :return:
     """
+    name = picture['name']
     if name.split('.')[-1] == 'gif':
         return None
 
     if image_type == 'BASE64':
-        image = image_to_base64(os.path.join(IMAGE_DIR, name))
+        # 图片按照日期分文件夹存储
+        image_dir = os.path.join(IMAGE_DIR, str(picture['created_time'].date()))
+        file_path = os.path.join(image_dir, name)
+        if not os.path.exists(file_path) and redownload:
+            # 图片不存在并要重下载
+            download_picture(picture['url'], path=image_dir, file_name=name)
+        image = image_to_base64(file_path)
         if not image:
             return None
     else:
@@ -80,11 +88,12 @@ def recognize_all_pictures():
     pictures = list(mongo_db['images'].find({'recognized': False}))
     for picture in pictures:
         try:
-            recognize_multi(picture['name'], url=picture['url'],
-                            image_type='BASE64', save=True)
+            recognize_multi(picture, url=picture['url'], image_type='BASE64',
+                            save=True, redownload=True)
         except Exception as e:
             logger.error(e)
         time.sleep(0.5)
+    logger.info("recognize_all_pictures end!")
 
 
 if __name__ == '__main__':

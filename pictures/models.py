@@ -26,7 +26,7 @@ class Group(models.Model):
         verbose_name = verbose_name_plural = '组合'
 
     def __str__(self):
-        return self.name
+        return self.name_jp
 
     @classmethod
     def get_all(cls, status=None):
@@ -56,13 +56,13 @@ class Member(models.Model):
     name_en = models.CharField(max_length=50, verbose_name='罗马')
     status = models.PositiveIntegerField(
         default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name='状态')
-    joined_time = models.DateField(null=True, verbose_name='进入时间')
+    joined_time = models.DateField(verbose_name='进入时间', blank=True)
     graduated_time = models.DateField(null=True, verbose_name='毕业时间')
     group = models.ForeignKey(Group, verbose_name='组合',
                               on_delete=models.DO_NOTHING)
     favicon = models.URLField(verbose_name='照片')
     color = models.CharField(max_length=20, verbose_name='成员色')
-    birthday = models.DateField(null=True, verbose_name='生日')
+    birthday = models.DateField(null=True, verbose_name='生日', blank=True)
     hometown = models.CharField(max_length=50, verbose_name='出生地')
     nickname = models.CharField(max_length=50, verbose_name='昵称')
 

@@ -40,7 +40,7 @@ class MemberAdmin(admin.ModelAdmin):
     list_display = ('name', 'name_jp', 'name_en', 'nickname', 'birthday',
                     'status', 'hometown', 'joined_time', 'graduated_time',
                     'group')
-    list_filter = ('status', 'group__name')
+    list_filter = ('status', 'group__name_jp')
     search_fields = ('name', 'name_jp', 'name_en', 'group__name')
 
     fieldsets = (
