@@ -27,6 +27,12 @@ class Role(models.Model):
     permission = models.PositiveIntegerField(default=1, verbose_name='权限等级')
     desc = models.CharField(max_length=100, verbose_name='权限描述')
 
+    class Meta:
+        verbose_name = verbose_name_plural = '角色'
+
+    def __str__(self):
+        return self.name
+
 
 class HelloUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, verbose_name='用户名')

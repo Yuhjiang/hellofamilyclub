@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django import forms
-from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField,\
     AdminPasswordChangeForm
 
 
-from .models import HelloUser
+from .models import HelloUser, Role
 
 
 class UserCreationForm(forms.ModelForm):
@@ -82,6 +81,21 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('username',)
     ordering = ('username',)
     filter_horizontal = ('user_permissions', )
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'permission', 'desc')
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'permission', 'desc'),
+        }),
+    )
+
+    actions_on_top = True
+    actions_on_bottom = True
+    save_on_top = True
 
 
 admin.site.register(HelloUser, UserAdmin)
