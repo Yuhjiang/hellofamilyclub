@@ -2,7 +2,8 @@ from django.contrib import admin
 from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.forms import ReadOnlyPasswordHashField,\
+    AdminPasswordChangeForm
 
 
 from .models import HelloUser
@@ -57,6 +58,7 @@ class UserAdmin(BaseUserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
 
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
@@ -66,7 +68,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
         ('Personal info', {'fields': ('birthday', 'phone')}),
-        ('Permissions', {'fields': ('is_admin',)}),
+        ('Permissions', {'fields': ('is_admin', 'user_permissions')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -76,10 +78,11 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'email', 'password1', 'password2'),
         }),
     )
+
     search_fields = ('username',)
     ordering = ('username',)
-    filter_horizontal = ()
+    filter_horizontal = ('user_permissions', )
 
 
 admin.site.register(HelloUser, UserAdmin)
-admin.site.unregister(Group)
+# admin.site.register(Group)

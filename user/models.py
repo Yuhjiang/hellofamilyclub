@@ -33,7 +33,7 @@ class HelloUser(AbstractUser):
     password = models.CharField(max_length=100, verbose_name='密码')
     email = models.EmailField(max_length=100, default='', verbose_name='邮箱')
     phone = models.CharField(max_length=50, default='', verbose_name='电话')
-    role = models.ForeignKey(Role, verbose_name='角色', default=1,
+    role = models.ForeignKey(Role, verbose_name='角色', default=2,
                              on_delete=models.DO_NOTHING)
     confirmed = models.BooleanField(default=False, verbose_name='验证用户')
     last_login = models.DateTimeField(null=True, verbose_name='上次登录时间')
