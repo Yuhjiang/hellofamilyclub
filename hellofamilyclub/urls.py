@@ -14,14 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+
+from rest_framework.routers import DefaultRouter
 
 from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
-    MemberFaceList, GroupProfile, MemberFaceListDate, CookieApi
+    MemberFaceList, GroupProfile, MemberFaceListDate, CookieAPI
+from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
 
+
 urlpatterns = [
-    path('api/cookie/', CookieApi.as_view(), name='cookie'),
+    path('api/group/', GroupList.as_view(), name='group-list'),
+    path('api/member/', MemberList.as_view(), name='member-list'),
+    path('api/cookie/', CookieAPI.as_view(), name='cookie'),
     path('api/pictures/timeline/', MemberFaceListDate.as_view(),
          name='faces-list-timeline'),
     path('groups/timeline/', GroupProfile.as_view(), name='groups-timeline'),
