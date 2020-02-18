@@ -74,8 +74,8 @@ def _reload_supervisor(deploy_path, profile):
     upload_template(filename, destination, context=context, use_jinja=True,
                     template_dir=template_dir)
     with settings(warn_only=True):
-        result = run('%s/supervisorctl -c %s/supervisord.conf shutdown'
-                     % (os.path.join(env.VENV_PATH, 'bin'), deploy_path))
+        result = run('%s/supervisorctl shutdown'
+                     % (os.path.join(env.VENV_PATH, 'bin')))
         if result:
             run('%s/supervisord -c %s/supervisord.conf' % (
                 os.path.join(env.VENV_PATH, 'bin'), deploy_path))
