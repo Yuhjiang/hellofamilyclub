@@ -20,24 +20,6 @@ Hello!Project History
 </ul>
 {% endblock %}
 
-{% block extraSidebar %}
-<div class="card sidebar" style="background-color: #e9ecef">
-    <div class="card-body">
-        <h4 class="card-title">筛选栏</h4>
-        <div class="input-group mb-3">
-            <select class="custom-select" id="member_name">
-                <option value=0 selected>Choose...</option>
-                {% for member in members %}
-                    <option value="{{ member.id }}">{{ member.name }}</option>
-                {% endfor %}
-            </select>
-            <div class="input-group-prepend">
-                <button class="btn btn-outline-secondary" type="button" id="member_select">选择成员</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
 
 {% block scriptImport %}
     <script src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
@@ -47,7 +29,10 @@ Hello!Project History
 <script>
     const timeline = document.getElementById('timeline');
     const member_name = document.getElementById('member_name');
+    const group_name = document.getElementById('group_name');
     const member_select = document.getElementById('member_select');
+    const member_name_2 = document.getElementById('member_name_2');
+    const group_name_2 = document.getElementById('group_name_2');
 
     const renderTimeline = (images) => {
         var t = "";
@@ -68,12 +53,46 @@ Hello!Project History
         }
         return t;
     };
+    const renderMemberList = (memberList) => {
+        var t = '<option value=0 selected="">选择成员</option>';
+        for (let i = 0; i < memberList.length; i++) {
+            t += `<option value=${memberList[i].id}>${memberList[i].name_jp}</option>`
+        }
+        return t;
+    };
+    const handleClick = (group_id, member_id) => {
+        const member_name = document.getElementById(member_id);
+        const group_name = document.getElementById(group_id);
+
+        group_name.onchange = function() {
+            let query = {};
+            if (group_name.selectedIndex) {
+                query = {group_id: group_name.value};
+            }
+            axios({
+                url: '/api/member/?format=json',
+                method: 'get',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded',},
+                params: query,
+                xsrfCookieName: 'csrftoken',
+                xsrfHeaderName: 'X-CSRFToken',
+            }).then(function(response) {
+                member_name.innerHTML = renderMemberList(response.data);
+            }).catch(function(response) {
+                alert(response);
+            })
+        }
+    };
+    handleClick('group_name', 'member_name');
+    handleClick('group_name_2', 'member_name_2');
 
     member_select.onclick = function() {
-        const photo_list = document.getElementById('photo-list');
         let query = {};
         if (member_name.value) {
-            query = {member1: member_name.value}
+            query['member1'] = member_name.value;
+        }
+        if (member_name_2.selectedIndex) {
+            query['member2'] = member_name_2.value;
         }
         axios({
             url: '/api/pictures/timeline?format=json',

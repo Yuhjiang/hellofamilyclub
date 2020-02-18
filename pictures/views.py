@@ -36,7 +36,8 @@ class BaseView(View):
             sidebars = SideBar.get_all().filter(owner=request.user)
         else:
             sidebars = SideBar.objects.none()
-        members = Member.objects.filter().only('id', 'name')
+        members = Member.objects.filter().only('id', 'name_jp')
+        groups = Group.objects.filter().only('id', 'name_jp')
         return {'groups': groups, 'sidebars': sidebars, 'members': members}
 
 
@@ -86,7 +87,7 @@ Restful API
 """
 
 
-class CookieApi(APIView):
+class CookieAPI(APIView):
     @staticmethod
     def post(request):
         body = request.POST
@@ -116,8 +117,12 @@ class MemberFaceList(APIView):
 
     @staticmethod
     def double_member(query):
-        member_ids = [int(query['member1']), int(query['member2'])]
-        return {'members.id': {'$in': member_ids}, 'size': 2}
+        member_1 = int(query['member1'])
+        member_2 = int(query['member2'])
+        query = {'$or': [{'members.1.id': member_1, 'members.0.id': member_2},
+                 {'members.0.id': member_2, 'members.1.id': member_1}],
+                 'size': 2}
+        return query
 
     def get(self, request):
         page = request.GET.get('page')
@@ -143,11 +148,17 @@ class MemberFaceList(APIView):
         return Response(result)
 
 
-class MemberFaceListDate(APIView):
+class MemberFaceListDate(MemberFaceList):
     def get(self, request):
-        member_id = request.GET.get('member1')
+        if request.GET.get('member2') and int(request.GET['member2']):
+            query = self.double_member(request.GET)
+        elif request.GET.get('member1') and int(request.GET['member1']):
+            query = self.single_member(request.GET)
+        else:
+            query = self.all_member()
+        print(query)
         images = list(mongo_db['images'].aggregate([
-            {'$match': {'members.id': int(member_id)}},
+            {'$match': query},
             {'$group': {
                 '_id': '$created_date',
                 'pictures': {'$push': {'name': '$name', 'url': '$url'}},

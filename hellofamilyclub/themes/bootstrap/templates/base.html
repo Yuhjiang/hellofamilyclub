@@ -63,7 +63,40 @@
             </div>
             <div class="col-3">
                 {% block extraSidebar %}
-
+                <div class="card sidebar" style="background-color: #e9ecef">
+                    <div class="card-body">
+                        <h4 class="card-title">筛选栏</h4>
+                        <select class="custom-select" id="group_name">
+                            <option value=0 selected>选择组合</option>
+                            {% for group in groups %}
+                                <option value="{{ group.id }}">{{ group.name_jp }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="custom-select" id="member_name">
+                            <option value=0 selected>选择成员</option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.name_jp }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="custom-select" id="group_name_2">
+                            <option value=0 selected>选择组合</option>
+                            {% for group in groups %}
+                                <option value="{{ group.id }}">{{ group.name_jp }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group mb-3">
+                            <select class="custom-select" id="member_name_2">
+                                <option value=0 selected>选择成员</option>
+                                {% for member in members %}
+                                    <option value="{{ member.id }}">{{ member.name_jp }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="input-group-prepend">
+                                <button class="btn btn-outline-secondary" type="button" id="member_select">确认</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endblock %}
                 {% block sidebar %}
                     {% for sidebar in sidebars %}

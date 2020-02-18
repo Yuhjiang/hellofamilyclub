@@ -6,12 +6,12 @@ import time
 import logging
 
 import django
-django.setup()
 
 from aip import AipFace
 
 from pictures.service.config import API_KEY, APP_ID, SECRET_KEY, IMAGE_DIR, \
     mongo_db
+django.setup()
 from pictures.models import Member
 from hellofamilyclub.utils.utils import image_to_base64, download_picture
 
