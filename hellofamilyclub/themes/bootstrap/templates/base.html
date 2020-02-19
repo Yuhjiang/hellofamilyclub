@@ -24,7 +24,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    {% for group in groups %}
+                    {% for group in groups_nav %}
                         <li class="nav-item">
                         {% if category and category.id == group.id %}
                             <a class="nav-link active" href="{{ group.homepage }}">

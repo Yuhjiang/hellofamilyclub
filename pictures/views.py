@@ -31,14 +31,16 @@ client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 class BaseView(View):
     @staticmethod
     def get_context_data(request):
-        groups = Group.get_all()
         if request.user.is_authenticated:
             sidebars = SideBar.get_all().filter(owner=request.user)
         else:
             sidebars = SideBar.objects.none()
         members = Member.objects.filter().only('id', 'name_jp')
         groups = Group.objects.filter().only('id', 'name_jp')
-        return {'groups': groups, 'sidebars': sidebars, 'members': members}
+        groups_nav = Group.get_all(status=Group.STATUS_NORMAL).only(
+            'id', 'name_jp')
+        return {'groups': groups, 'sidebars': sidebars, 'members': members,
+                'groups_nav': groups_nav}
 
 
 class GroupProfile(BaseView):
@@ -70,7 +72,8 @@ class MemberFaceIndex(BaseView):
         page = request.GET.get('page')
         limit = request.GET.get('limit')
         limit, skip = page_limit_skip(page, limit)
-        images = list(mongo_db['images'].find().limit(limit).skip(skip))
+        images = list(mongo_db['images'].find().sort('created_time', -1).
+                      limit(limit).skip(skip))
         count = mongo_db['images'].count()
         context = {
             'images': images,
@@ -133,10 +136,9 @@ class MemberFaceList(APIView):
             query = self.single_member(request.GET)
         else:
             query = self.all_member()
-        print(query)
         limit, skip = page_limit_skip(page, limit)
         images = list(mongo_db['images'].find(query, {'_id': 0}).
-                      limit(limit).skip(skip))
+                      sort('created_time').limit(limit).skip(skip))
 
         count = mongo_db['images'].count(query)
         result = {
