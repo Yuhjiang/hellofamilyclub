@@ -70,7 +70,9 @@ def migrate_one(image):
 
 
 def migrate_all():
-    images = list(db_client['helloproject']['images'].find({}))
+    names = mongo_db['images'].distinct('name')
+    images = list(db_client['helloproject']['images'].find(
+        {'name': {'$nin': names}}))
     for image in images:
         exist = mongo_db['images'].find_one({'name': image['name']})
         if not exist:

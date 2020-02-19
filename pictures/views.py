@@ -164,6 +164,7 @@ class MemberFaceListDate(MemberFaceList):
         count = mongo_db['images'].count(query)
         images = list(mongo_db['images'].aggregate([
             {'$match': query},
+            {'$sort': {'created_time': -1}},
             {'$skip': skip},
             {'$limit': limit},
             {'$group': {
