@@ -138,7 +138,7 @@ class MemberFaceList(APIView):
             query = self.all_member()
         limit, skip = page_limit_skip(page, limit)
         images = list(mongo_db['images'].find(query, {'_id': 0}).
-                      sort('created_time').limit(limit).skip(skip))
+                      sort('created_time', -1).limit(limit).skip(skip))
 
         count = mongo_db['images'].count(query)
         result = {
@@ -196,9 +196,10 @@ class MemberFaceAPI(APIView):
         else:
             image = body['image_file']
             image_type = 'BASE64'
-        client.addUser(image=image, image_type=image_type,
-                       group_id=self.groupId, user_id=user_id)
-        return Response({'status': 'success', 'message': '注册成功'})
+        result = client.addUser(image=image, image_type=image_type,
+                                group_id=self.groupId, user_id=user_id)
+
+        return Response({'status': 'success', 'message': result['error_msg']})
 
     def get(self, request):
         """
