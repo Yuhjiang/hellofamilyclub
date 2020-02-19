@@ -152,14 +152,20 @@ class MemberFaceList(APIView):
 
 class MemberFaceListDate(MemberFaceList):
     def get(self, request):
+        page = request.GET.get('page')
+        limit = request.GET.get('limit')
         if request.GET.get('member2') and int(request.GET['member2']):
             query = self.double_member(request.GET)
         elif request.GET.get('member1') and int(request.GET['member1']):
             query = self.single_member(request.GET)
         else:
             query = self.all_member()
+        limit, skip = page_limit_skip(page, limit)
+        count = mongo_db['images'].count(query)
         images = list(mongo_db['images'].aggregate([
             {'$match': query},
+            {'$skip': skip},
+            {'$limit': limit},
             {'$group': {
                 '_id': '$created_date',
                 'pictures': {'$push': {'name': '$name', 'url': '$url'}},
@@ -170,7 +176,10 @@ class MemberFaceListDate(MemberFaceList):
         for image in images:
             image['date'] = image['_id'].strftime('%Y年%m月%d日')
         result = {
-            'images': images
+            'images': images,
+            'count': count,
+            'limit': limit,
+            'page': page
         }
         return Response(result)
 

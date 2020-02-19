@@ -93,9 +93,12 @@
             return
         }
         const photo_list = document.getElementById('photo-list');
-        let query = {page: obj.curr, limit: {{limit }}};
-        if (member_name.value) {
-            query = {...query, member1: member_name.value}
+        let query = {page: obj.curr, limit: 20};
+        if (member_name.selectedIndex) {
+            query['member1'] = member_name.value;
+        }
+        if (member_name_2.selectedIndex) {
+            query['member2'] = member_name_2.value;
         }
         axios({
             url: '/api/pictures/?format=json',

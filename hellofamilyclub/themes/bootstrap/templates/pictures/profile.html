@@ -18,10 +18,12 @@ Hello!Project History
     </li>
     {% endfor %}
 </ul>
+    <div id="pagination" class="float-right"></div>
 {% endblock %}
 
 
 {% block scriptImport %}
+    <script src="/static/layui.js"></script>
     <script src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
 {% endblock %}
 
@@ -33,6 +35,57 @@ Hello!Project History
     const member_select = document.getElementById('member_select');
     const member_name_2 = document.getElementById('member_name_2');
     const group_name_2 = document.getElementById('group_name_2');
+
+    layui.use('laypage', function() {
+        var laypage = layui.laypage;
+
+        laypage.render({
+            elem: 'pagination',
+            count: 20,
+            limit: 20,
+            curr: 1,
+            jump: function(obj, first) {
+                handleJump(obj, first)
+            },
+        });
+    });
+
+    const resetPage = (response) => {
+        var laypage = layui.laypage;
+        laypage.render({
+            elem: 'pagination',
+            count: response.data.count,
+            limit: 20,
+            curr: 1,
+            jump: function(obj, first) {
+                handleJump(obj, first);
+            },
+        });
+    };
+    const handleJump = (obj, first) => {
+        if (first) {
+            return
+        }
+        let query = {page: obj.curr, limit: 20};
+        if (member_name.selectedIndex) {
+            query['member1'] = member_name.value;
+        }
+        if (member_name_2.selectedIndex) {
+            query['member2'] = member_name_2.value;
+        }
+        axios({
+            url: '/api/pictures/timeline/?format=json',
+            method: 'get',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded',},
+            params: query,
+            xsrfCookieName: 'csrftoken',
+            xsrfHeaderName: 'X-CSRFToken',
+        }).then(function(response) {
+            timeline.innerHTML = renderTimeline(response.data.images);
+        }).catch(function(response) {
+            alert(response);
+        })
+    };
 
     const renderTimeline = (images) => {
         var t = "";
@@ -95,7 +148,7 @@ Hello!Project History
             query['member2'] = member_name_2.value;
         }
         axios({
-            url: '/api/pictures/timeline?format=json',
+            url: '/api/pictures/timeline/?format=json',
             method: 'get',
             headers: {'Content-Type': 'application/x-www-form-urlencoded',},
             params: query,
@@ -103,6 +156,7 @@ Hello!Project History
             xsrfHeaderName: 'X-CSRFToken',
         }).then(function(response) {
             timeline.innerHTML = renderTimeline(response.data.images);
+            resetPage(response);
         }).catch(function(response) {
             alert(response);
         });

@@ -17,6 +17,6 @@ class MemberList(generics.ListAPIView):
     def get_queryset(self):
         if self.request.query_params.get('group_id'):
             group_id = int(self.request.query_params['group_id'])
-            return Member.objects.filter(group_id=group_id)
+            return Member.objects.filter(group_id=group_id).order_by('-status')
         else:
             return Member.objects.filter()
