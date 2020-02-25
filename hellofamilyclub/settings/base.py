@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'channels',
 ]
 
 AUTH_USER_MODEL = 'user.HelloUser'
@@ -56,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'hellofamilyclub.urls'
@@ -80,6 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'hellofamilyclub.wsgi.application'
+ASGI_APPLICATION = 'hellofamilyclub.asgi.application'
 
 
 # Database
