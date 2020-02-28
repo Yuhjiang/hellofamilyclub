@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'jobs',
     'dal',
     'dal_select2',
+    "corsheaders",
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,6 +52,7 @@ AUTH_USER_MODEL = 'user.HelloUser'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -59,6 +61,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'hellofamilyclub.urls'
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+)
 
 THEME = 'bootstrap'
 
