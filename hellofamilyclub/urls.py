@@ -25,13 +25,13 @@ from pictures.autocomplete import MemberAutoComplete
 
 
 urlpatterns = [
-    path('api/group/', GroupList.as_view(), name='group-list'),
+    path('api/group', GroupList.as_view(), name='group-list'),
     path('api/member/', MemberList.as_view(), name='member-list'),
     path('api/cookie/', CookieAPI.as_view(), name='cookie'),
     path('api/pictures/timeline/', MemberFaceListDate.as_view(),
          name='faces-list-timeline'),
     path('groups/timeline/', GroupProfile.as_view(), name='groups-timeline'),
-    path('api/pictures/', MemberFaceList.as_view(), name='faces-list'),
+    path('api/pictures', MemberFaceList.as_view(), name='faces-list'),
     path('', MemberFaceIndex.as_view(), name='faces'),
     path('face/add/', MemberFace.as_view(), name='add-face'),
     path('member-autocomplete/', MemberAutoComplete.as_view(),

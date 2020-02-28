@@ -100,13 +100,14 @@ class CookieAPI(APIView):
                 'cookie': body['cookie'],
                 'update_time': current_time,
             })
-            return Response({'result': result.acknowledged,
-                             'message': '成功更新Cookie'})
+            if result.acknowledged:
+                return Response({'status': 200, 'errMsg': '', 'data': {
+                    'message': '成功更新Cookie'
+                }})
+            else:
+                return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
         else:
-            return Response({
-                'result': False,
-                'message': 'Cookie更新失败'
-            })
+            return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
 
 
 class MemberFaceList(APIView):
@@ -142,10 +143,14 @@ class MemberFaceList(APIView):
 
         count = mongo_db['images'].count(query)
         result = {
-            'images': images,
-            'current': page,
-            'limit': limit,
-            'count': count
+            'status': 200,
+            'errMsg': '',
+            'data': {
+                'images': images,
+                'current': page,
+                'limit': limit,
+                'count': count
+            },
         }
         return Response(result)
 
@@ -177,10 +182,13 @@ class MemberFaceListDate(MemberFaceList):
         for image in images:
             image['date'] = image['_id'].strftime('%Y年%m月%d日')
         result = {
-            'images': images,
-            'count': count,
-            'limit': limit,
-            'page': page
+            "data": {
+                'images': images,
+                'count': count,
+                'limit': limit,
+                'page': page
+            },
+            "status": 200,
         }
         return Response(result)
 
@@ -198,7 +206,7 @@ class MemberFaceAPI(APIView):
         try:
             member = Member.objects.get(id=body.get('member'))
         except Member.DoesNotExist:
-            return Response({'status': 'failed', 'message': '未找到成员'})
+            return Response({'status': '500', 'errMsg': '未找到成员'})
         user_id = member.name_en
         if body.get('image_url'):
             image = body['image_url']
@@ -209,7 +217,7 @@ class MemberFaceAPI(APIView):
         result = client.addUser(image=image, image_type=image_type,
                                 group_id=self.groupId, user_id=user_id)
 
-        return Response({'status': 'success', 'message': result['error_msg']})
+        return Response({'status': '200', 'errMsg': result['error_msg']})
 
     def get(self, request):
         """
@@ -221,10 +229,9 @@ class MemberFaceAPI(APIView):
         try:
             member = Member.objects.get(id=query.get('member'))
         except Member.DoesNotExist:
-            return Response({'status': 'failed', 'message': '未找到成员'})
+            return Response({'status': '500', 'errMsg': '未找到成员'})
         user_id = member.name_en
 
         faces = client.faceGetlist(user_id=user_id, group_id=self.groupId)
 
-        return Response({'status': 'succeed', 'message': '成功获取人脸',
-                         'data': faces})
+        return Response({'status': '200', 'data': {'faces': faces}})
