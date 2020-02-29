@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from django.shortcuts import render, get_object_or_404, reverse
@@ -14,7 +15,7 @@ from .forms import MemberForm
 from .service.config import mongo_db
 from config.models import SideBar
 from hellofamilyclub.utils.utils import page_limit_skip
-from hellofamilyclub.utils.decorators import admin_required
+from hellofamilyclub.utils.decorators import admin_required, admin_required_api
 
 
 APP_ID = settings.APP_ID
@@ -91,9 +92,9 @@ Restful API
 
 
 class CookieAPI(APIView):
-    @staticmethod
-    def post(request):
-        body = request.POST
+    @method_decorator(admin_required_api)
+    def post(self, request):
+        body = json.loads(request.body)
         if body.get('cookie'):
             current_time = datetime.now()
             result = mongo_db['cookie'].insert_one({
