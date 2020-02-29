@@ -26,7 +26,7 @@ from pictures.autocomplete import MemberAutoComplete
 
 urlpatterns = [
     path('api/group', GroupList.as_view(), name='group-list'),
-    path('api/member/', MemberList.as_view(), name='member-list'),
+    path('api/member', MemberList.as_view(), name='member-list'),
     path('api/cookie/', CookieAPI.as_view(), name='cookie'),
     path('api/pictures/timeline/', MemberFaceListDate.as_view(),
          name='faces-list-timeline'),

@@ -12,7 +12,8 @@ class GroupList(generics.ListAPIView):
         return Group.objects.filter()
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset()).order_by(
+            'created_time')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -34,3 +35,16 @@ class MemberList(generics.ListAPIView):
             return Member.objects.filter(group_id=group_id).order_by('-status')
         else:
             return Member.objects.filter()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response({'status': 200, 'errMsg': '',
+                         'data': {'members': serializer.data}})

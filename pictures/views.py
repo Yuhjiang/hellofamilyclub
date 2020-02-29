@@ -117,24 +117,38 @@ class MemberFaceList(APIView):
 
     @staticmethod
     def single_member(query):
-        return {'members.id': int(query['member1'])}
+        return {'members.id': int(query['member_first'])}
 
     @staticmethod
     def double_member(query):
-        member_1 = int(query['member1'])
-        member_2 = int(query['member2'])
+        member_1 = int(query['member_first'])
+        member_2 = int(query['member_second'])
         query = {'$or': [{'members.1.id': member_1, 'members.0.id': member_2},
                  {'members.1.id': member_2, 'members.0.id': member_1}],
                  'size': 2}
         return query
 
     def get(self, request):
-        page = request.GET.get('page')
+        page = request.GET.get('page', 1)
         limit = request.GET.get('limit')
-        if request.GET.get('member2') and int(request.GET['member2']):
-            query = self.double_member(request.GET)
-        elif request.GET.get('member1') and int(request.GET['member1']):
-            query = self.single_member(request.GET)
+        if request.GET.get("group_second"):
+            if request.GET.get('member_second') and int(request.GET['member_second']):
+                query = self.double_member(request.GET)
+            else:
+                try:
+                    group = Group.objects.get(id=int(request.GET["group_second"]))
+                    query = {"members.group": group.name_en}
+                except Group.DoesNotExist:
+                    query = {}
+        elif request.GET.get("group_first"):
+            if request.GET.get('member_first') and int(request.GET['member_first']):
+                query = self.single_member(request.GET)
+            else:
+                try:
+                    group = Group.objects.get(id=int(request.GET["group_first"]))
+                    query = {"members.group": group.name_en}
+                except Group.DoesNotExist:
+                    query = {}
         else:
             query = self.all_member()
         limit, skip = page_limit_skip(page, limit)
@@ -147,7 +161,7 @@ class MemberFaceList(APIView):
             'errMsg': '',
             'data': {
                 'images': images,
-                'current': page,
+                'current': int(page),
                 'limit': limit,
                 'count': count
             },
