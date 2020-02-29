@@ -16,22 +16,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
     MemberFaceList, GroupProfile, MemberFaceListDate, CookieAPI
 from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
+from user.apis import login_user
 
 
 urlpatterns = [
-    path('api/group/', GroupList.as_view(), name='group-list'),
-    path('api/member/', MemberList.as_view(), name='member-list'),
-    path('api/cookie/', CookieAPI.as_view(), name='cookie'),
+    path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
+    path('api/login', login_user, name='login-user'),
+    path('api/group', GroupList.as_view(), name='group-list'),
+    path('api/member', MemberList.as_view(), name='member-list'),
+    path('api/cookie', CookieAPI.as_view(), name='cookie'),
     path('api/pictures/timeline/', MemberFaceListDate.as_view(),
          name='faces-list-timeline'),
     path('groups/timeline/', GroupProfile.as_view(), name='groups-timeline'),
-    path('api/pictures/', MemberFaceList.as_view(), name='faces-list'),
+    path('api/pictures', MemberFaceList.as_view(), name='faces-list'),
     path('', MemberFaceIndex.as_view(), name='faces'),
     path('face/add/', MemberFace.as_view(), name='add-face'),
     path('member-autocomplete/', MemberAutoComplete.as_view(),

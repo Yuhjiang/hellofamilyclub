@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from django.shortcuts import render, get_object_or_404, reverse
@@ -14,7 +15,7 @@ from .forms import MemberForm
 from .service.config import mongo_db
 from config.models import SideBar
 from hellofamilyclub.utils.utils import page_limit_skip
-from hellofamilyclub.utils.decorators import admin_required
+from hellofamilyclub.utils.decorators import admin_required, admin_required_api
 
 
 APP_ID = settings.APP_ID
@@ -91,22 +92,23 @@ Restful API
 
 
 class CookieAPI(APIView):
-    @staticmethod
-    def post(request):
-        body = request.POST
+    @method_decorator(admin_required_api)
+    def post(self, request):
+        body = json.loads(request.body)
         if body.get('cookie'):
             current_time = datetime.now()
             result = mongo_db['cookie'].insert_one({
                 'cookie': body['cookie'],
                 'update_time': current_time,
             })
-            return Response({'result': result.acknowledged,
-                             'message': '成功更新Cookie'})
+            if result.acknowledged:
+                return Response({'status': 200, 'errMsg': '', 'data': {
+                    'message': '成功更新Cookie'
+                }})
+            else:
+                return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
         else:
-            return Response({
-                'result': False,
-                'message': 'Cookie更新失败'
-            })
+            return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
 
 
 class MemberFaceList(APIView):
@@ -116,24 +118,38 @@ class MemberFaceList(APIView):
 
     @staticmethod
     def single_member(query):
-        return {'members.id': int(query['member1'])}
+        return {'members.id': int(query['member_first'])}
 
     @staticmethod
     def double_member(query):
-        member_1 = int(query['member1'])
-        member_2 = int(query['member2'])
+        member_1 = int(query['member_first'])
+        member_2 = int(query['member_second'])
         query = {'$or': [{'members.1.id': member_1, 'members.0.id': member_2},
                  {'members.1.id': member_2, 'members.0.id': member_1}],
                  'size': 2}
         return query
 
     def get(self, request):
-        page = request.GET.get('page')
+        page = request.GET.get('page', 1)
         limit = request.GET.get('limit')
-        if request.GET.get('member2') and int(request.GET['member2']):
-            query = self.double_member(request.GET)
-        elif request.GET.get('member1') and int(request.GET['member1']):
-            query = self.single_member(request.GET)
+        if request.GET.get("group_second"):
+            if request.GET.get('member_second') and int(request.GET['member_second']):
+                query = self.double_member(request.GET)
+            else:
+                try:
+                    group = Group.objects.get(id=int(request.GET["group_second"]))
+                    query = {"members.group": group.name_en}
+                except Group.DoesNotExist:
+                    query = {}
+        elif request.GET.get("group_first"):
+            if request.GET.get('member_first') and int(request.GET['member_first']):
+                query = self.single_member(request.GET)
+            else:
+                try:
+                    group = Group.objects.get(id=int(request.GET["group_first"]))
+                    query = {"members.group": group.name_en}
+                except Group.DoesNotExist:
+                    query = {}
         else:
             query = self.all_member()
         limit, skip = page_limit_skip(page, limit)
@@ -142,10 +158,14 @@ class MemberFaceList(APIView):
 
         count = mongo_db['images'].count(query)
         result = {
-            'images': images,
-            'current': page,
-            'limit': limit,
-            'count': count
+            'status': 200,
+            'errMsg': '',
+            'data': {
+                'images': images,
+                'current': int(page),
+                'limit': limit,
+                'count': count
+            },
         }
         return Response(result)
 
@@ -177,10 +197,13 @@ class MemberFaceListDate(MemberFaceList):
         for image in images:
             image['date'] = image['_id'].strftime('%Y年%m月%d日')
         result = {
-            'images': images,
-            'count': count,
-            'limit': limit,
-            'page': page
+            "data": {
+                'images': images,
+                'count': count,
+                'limit': limit,
+                'page': page
+            },
+            "status": 200,
         }
         return Response(result)
 
@@ -198,7 +221,7 @@ class MemberFaceAPI(APIView):
         try:
             member = Member.objects.get(id=body.get('member'))
         except Member.DoesNotExist:
-            return Response({'status': 'failed', 'message': '未找到成员'})
+            return Response({'status': '500', 'errMsg': '未找到成员'})
         user_id = member.name_en
         if body.get('image_url'):
             image = body['image_url']
@@ -209,7 +232,7 @@ class MemberFaceAPI(APIView):
         result = client.addUser(image=image, image_type=image_type,
                                 group_id=self.groupId, user_id=user_id)
 
-        return Response({'status': 'success', 'message': result['error_msg']})
+        return Response({'status': '200', 'errMsg': result['error_msg']})
 
     def get(self, request):
         """
@@ -221,10 +244,9 @@ class MemberFaceAPI(APIView):
         try:
             member = Member.objects.get(id=query.get('member'))
         except Member.DoesNotExist:
-            return Response({'status': 'failed', 'message': '未找到成员'})
+            return Response({'status': '500', 'errMsg': '未找到成员'})
         user_id = member.name_en
 
         faces = client.faceGetlist(user_id=user_id, group_id=self.groupId)
 
-        return Response({'status': 'succeed', 'message': '成功获取人脸',
-                         'data': faces})
+        return Response({'status': '200', 'data': {'faces': faces}})
