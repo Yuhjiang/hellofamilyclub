@@ -24,10 +24,12 @@ from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
 from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user
-from blog.apis import PostViewSet
+from blog.apis import PostViewSet, CategoryViewSet, TagViewSet
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, basename='api-post')
+router.register(r'category', CategoryViewSet, basename='api-category')
+router.register(r'tag', TagViewSet, basename='api-tag')
 
 urlpatterns = [
     path('api/', include(router.urls)),

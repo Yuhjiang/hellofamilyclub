@@ -2,7 +2,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from .models import Post
+from .models import Post, Category, Tag
 
 
 class PostListSerializer(serializers.ModelSerializer):
@@ -41,6 +41,18 @@ class PostDetailSerializer(serializers.ModelSerializer):
         instance.updated_time = datetime.now()
         instance.save()
         return instance
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'created_time', 'is_nav', 'owner')
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'created_time', 'owner')
 
 
 if __name__ == '__main__':
