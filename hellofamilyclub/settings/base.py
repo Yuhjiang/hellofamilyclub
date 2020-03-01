@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'user',
     'pictures',
     'jobs',
+    'blog',
     'dal',
     'dal_select2',
     "corsheaders",
