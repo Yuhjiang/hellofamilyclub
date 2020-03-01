@@ -20,10 +20,10 @@ def login_user(request):
         return Response({'status': 200, 'errMsg': '',
                          'data': {
                              'is_admin': user.is_admin,
-                             'authToken': 'Bearer ' + str(token.access_token),
+                             'authToken': str(token.access_token),
                              'role': user.role.permission,
                              'id': user.id,
-                             'refresh': str(token),
+                             'refreshToken': str(token),
                          }})
     else:
         return Response({'status': 500, 'errMsg': '用户名或密码错误'})
