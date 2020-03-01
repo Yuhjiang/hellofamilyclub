@@ -68,7 +68,7 @@ class Post(models.Model):
     tag = models.ManyToManyField(Tag, verbose_name='标签')
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.DO_NOTHING)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    updated_time = models.DateTimeField(verbose_name='更新时间')
+    updated_time = models.DateTimeField(null=True, verbose_name='更新时间')
     is_md = models.BooleanField(default=False, verbose_name='markdown语法')
     amount = models.PositiveIntegerField(default=1, verbose_name='阅读量')
 
