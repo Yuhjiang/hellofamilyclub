@@ -24,3 +24,16 @@ def admin_required_api(function, message='你没有权限进行此操作'):
         else:
             return Response({'status': 500, 'errMsg': message})
     return wrapped_function
+
+
+def login_required_api(function, message='你没有权限进行此操作'):
+    @wraps(function)
+    def wrapped_function(request, *args, **kwargs):
+        current_user = request.user
+        if current_user.is_authenticated:
+            return function(request, *args, **kwargs)
+        else:
+            return Response({'status': 302, 'errMsg': message, 'data': {
+                'url': '/login',
+            }})
+    return wrapped_function

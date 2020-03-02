@@ -56,7 +56,7 @@ class Member(models.Model):
     name_en = models.CharField(max_length=50, verbose_name='罗马')
     status = models.PositiveIntegerField(
         default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name='状态')
-    joined_time = models.DateField(verbose_name='进入时间', blank=True)
+    joined_time = models.DateField(verbose_name='进入时间', null=True, blank=True)
     graduated_time = models.DateField(null=True, verbose_name='毕业时间')
     group = models.ForeignKey(Group, verbose_name='组合',
                               on_delete=models.DO_NOTHING)
