@@ -1,10 +1,12 @@
 from rest_framework import viewsets, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from blog.models import Post, Category, Tag
+from blog.models import Post, Category, Tag, Picture
 from blog.serializers import PostListSerializer, PostDetailSerializer, CategorySerializer,\
     TagSerializer
 from blog.pagination import PostListPagination
+from hellofamilyclub.utils.decorators import login_required_api
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -49,3 +51,18 @@ class TagViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+@api_view(['POST'])
+@login_required_api
+def upload_picture(request):
+    """
+    上传图片的接口，存储默认使用七牛云
+    :param request:
+    :return:
+    """
+    file = request.FILES['content']
+    user = request.user
+    instance = Picture(name=file.name, content=file, owner_id=user.id)
+    instance.save()
+    return Response({'status': 200, 'data': {'url': instance.content.url}})

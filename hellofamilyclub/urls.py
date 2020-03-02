@@ -24,8 +24,7 @@ from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
 from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user
-from blog.apis import PostViewSet, CategoryViewSet, TagViewSet
-from blog.views import upload_picture
+from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, basename='api-post')

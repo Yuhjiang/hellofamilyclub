@@ -3,6 +3,7 @@ from datetime import datetime
 from rest_framework import serializers
 
 from .models import Post, Category, Tag
+from user.models import HelloUser
 
 
 class PostListSerializer(serializers.ModelSerializer):
@@ -18,13 +19,15 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
-    # owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.filter())
+    tag = serializers.SlugRelatedField(slug_field='name', queryset=Tag.objects.filter(), many=True)
+    owner = serializers.SlugRelatedField(slug_field='username', queryset=HelloUser.objects.filter())
     amount = serializers.IntegerField(read_only=True)
     updated_time = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Post
-        fields = ['title', 'desc', 'content', 'content_html', 'draft',
+        fields = ['id', 'title', 'desc', 'content', 'content_html', 'draft',
                   'category', 'tag', 'owner', 'created_time', 'updated_time',
                   'is_md', 'amount']
 
@@ -33,6 +36,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tag')
         post = Post(**validated_data)
         post.save()
+        post.updated_time = datetime.now()
         post.tag.set(tags)
         return post
 

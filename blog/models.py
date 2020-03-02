@@ -60,7 +60,6 @@ class Post(models.Model):
     title = models.CharField(max_length=255, verbose_name='标题')
     desc = models.CharField(max_length=1024, verbose_name='摘要')
     content = models.TextField(verbose_name='正文')
-    content_html = models.TextField(verbose_name='正文html格式', blank=True, editable=False)
     draft = models.TextField(verbose_name='草稿', blank=True)
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS,
                                          verbose_name='状态')
