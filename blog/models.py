@@ -78,3 +78,11 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Picture(models.Model):
+    owner = models.ForeignKey(User, verbose_name='上传者', on_delete=models.DO_NOTHING)
+    name = models.CharField(max_length=255, verbose_name='图片名')
+    description = models.CharField(max_length=255, null=True)
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name='上传时间')
+    content = models.ImageField(verbose_name='图片')

@@ -173,3 +173,14 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(days=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=15),
 }
+
+# 七牛云
+QINIU_ACCESS_KEY = 'my0I1pVUXhONsc-rO8OvFyofFO9RwITyS02km2JO'
+QINIU_SECRET_KEY = 'LNGNWCm2TZXE-kuMo3iHVyyu4FMkR6CJuvXR2-oi'
+QINIU_BUCKET_NAME = 'hellofamily'
+QINIU_BUCKET_DOMAIN = 'cdn.hellofamily.club'
+DEFAULT_FILE_STORAGE = 'qiniustorage.backends.QiniuStorage'
+QINIU_SECURE_URL = False
+
+PREFIX_URL = 'http://'
+MEDIA_URL = PREFIX_URL + QINIU_BUCKET_DOMAIN + "media/"

@@ -25,6 +25,7 @@ from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user
 from blog.apis import PostViewSet, CategoryViewSet, TagViewSet
+from blog.views import upload_picture
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, basename='api-post')
@@ -32,6 +33,7 @@ router.register(r'category', CategoryViewSet, basename='api-category')
 router.register(r'tag', TagViewSet, basename='api-tag')
 
 urlpatterns = [
+    path('api/upload_picture', upload_picture, name='upload-picture'),
     path('api/', include(router.urls)),
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
     path('api/login', login_user, name='login-user'),
