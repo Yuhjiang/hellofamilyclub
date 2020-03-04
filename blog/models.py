@@ -2,6 +2,7 @@ from django.db import models
 
 from user.models import HelloUser as User
 
+
 class Category(models.Model):
     """
     博客分类
@@ -18,6 +19,7 @@ class Category(models.Model):
                                          verbose_name='状态')
     is_nav = models.BooleanField(default=False, verbose_name='是否为导航')
     owner = models.ForeignKey(User, verbose_name='创建者', on_delete=models.DO_NOTHING)
+    color = models.CharField(max_length=20, verbose_name='颜色', null=True)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     class Meta:
@@ -38,6 +40,7 @@ class Tag(models.Model):
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS,
                                          verbose_name='状态')
     owner = models.ForeignKey(User, verbose_name='创建者', on_delete=models.DO_NOTHING)
+    color = models.CharField(max_length=20, verbose_name='颜色', null=True)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     class Meta:
