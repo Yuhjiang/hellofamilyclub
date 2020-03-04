@@ -66,19 +66,13 @@ class CategoryViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.filter(status=Tag.STATUS_NORMAL)
+    pagination_class = PostListPagination
 
     def create(self, request, *args, **kwargs):
-        query_dict = request.data.copy()
-        # owner要从token里取出来
-        query_dict['owner'] = request.user.id
-        serializer = self.get_serializer(data=query_dict)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return super().create(request, *args, **kwargs)
 
 
 @api_view(['POST'])
