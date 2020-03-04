@@ -44,7 +44,7 @@ CACHES = {
     }
 }
 
-STATIC_ROOT = '/tmp/static'
+STATIC_ROOT = '/var/www/hellofamilyfront/buid/static'
 
 ADMINS = MANAGERS = (
     'yuhao', 'jiang.yuhao0809@gmail.com',
