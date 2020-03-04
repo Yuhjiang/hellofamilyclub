@@ -27,7 +27,21 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'desc', 'content', 'content_html', 'draft',
+        fields = ['id', 'title', 'desc', 'content', 'draft',
+                  'category', 'tag', 'owner', 'created_time', 'updated_time',
+                  'is_md', 'amount']
+
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get('content', instance.content)
+        instance.updated_time = datetime.now()
+        instance.save()
+        return instance
+
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'desc', 'content', 'draft',
                   'category', 'tag', 'owner', 'created_time', 'updated_time',
                   'is_md', 'amount']
 
@@ -40,23 +54,27 @@ class PostDetailSerializer(serializers.ModelSerializer):
         post.tag.set(tags)
         return post
 
-    def update(self, instance, validated_data):
-        instance.content = validated_data.get('content', instance.content)
-        instance.updated_time = datetime.now()
-        instance.save()
-        return instance
-
 
 class CategorySerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ('id', 'name', 'created_time', 'is_nav', 'owner')
+        fields = ('id', 'name', 'created_time', 'is_nav', 'owner', 'color', 'post_count')
+
+    def get_post_count(self, obj):
+        return obj.post_set.count()
 
 
 class TagSerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'created_time', 'owner')
+        fields = ('id', 'name', 'created_time', 'owner', 'color', 'post_count')
+
+    def get_post_count(self, obj):
+        return obj.post_set.count()
 
 
 if __name__ == '__main__':
