@@ -184,3 +184,18 @@ QINIU_SECURE_URL = False
 
 PREFIX_URL = 'http://'
 MEDIA_URL = PREFIX_URL + QINIU_BUCKET_DOMAIN + "media/"
+
+
+# Redis缓存
+REDIS_URL = 'redis://127.0.0.1:6379/1'
+
+CACHES = {
+    'default': 'django_redis.cache.RedisCache',
+    'LOCATION': REDIS_URL,
+    'TIMEOUT': 300,
+    'OPTIONS': {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        'PARSER_CLASS': 'django.connection.HiredisParser',
+    },
+    'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
+}

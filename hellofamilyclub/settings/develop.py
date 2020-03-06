@@ -1,6 +1,8 @@
 """
 开发环境Django设置
 """
+import os
+
 from .base import *
 
 DEBUG = True
@@ -49,7 +51,7 @@ CACHES = {
 ALLOWED_HOSTS = []
 
 EMAIL_HOST = 'smtp.exmail.qq.com'
-EMAIL_HOST_USER = 'jiangyuhao@hellofamily.club'
-EMAIL_HOST_PASSWORD = '1230zxcvAS'
-DEFAULT_FROM_EMAIL = 'jiangyuhao@hellofamily.club'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = 'hellofamily.club邮件报警'

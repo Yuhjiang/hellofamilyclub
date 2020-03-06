@@ -1,3 +1,6 @@
+from django.db.models import F
+from django.core.cache import cache
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -46,6 +49,7 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = PostDetailSerializer
+        self.handle_visit(request.user, kwargs.get('pk'))
         return super().retrieve(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -55,6 +59,24 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         self.serializer_class = PostCreateSerializer
         return super().create(request, *args, **kwargs)
+
+    @staticmethod
+    def handle_visit(user, post_id):
+        """
+        TODO 后续要把统计阅读量的逻辑放进redis，不要每次访问都进行统计
+        记录某个用户对某篇文章的访问
+        :param user: 用户
+        :param post_id: 文章id
+        :return:
+        """
+        if not user:
+            user_id = -1
+        else:
+            user_id = 1
+        key = 'visit:{}:{}'.format(user_id, post_id)
+        if not cache.get(key):
+            Post.objects.filter(pk=post_id).update(amount=F('amount') + 1)
+            cache.set(key, 60)
 
 
 class CategoryViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
