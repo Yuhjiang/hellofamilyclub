@@ -6,9 +6,43 @@ from .models import Post, Category, Tag
 from user.models import HelloUser
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'created_time', 'is_nav', 'owner', 'color', 'post_count')
+
+    def get_post_count(self, obj):
+        return obj.post_set.count()
+
+
+class TagSerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'created_time', 'owner', 'color', 'post_count')
+
+    def get_post_count(self, obj):
+        return obj.post_set.count()
+
+
+class TagSerializerForPost(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'color')
+
+
+class CategorySerializerForPost(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'color')
+
+
 class PostListSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    tag = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
+    category = CategorySerializerForPost(read_only=True)
+    tag = TagSerializerForPost(many=True, read_only=True)
     owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
     amount = serializers.IntegerField(read_only=True)
 
@@ -19,8 +53,8 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.filter())
-    tag = serializers.SlugRelatedField(slug_field='name', queryset=Tag.objects.filter(), many=True)
+    category = CategorySerializerForPost(read_only=True)
+    tag = TagSerializerForPost(many=True, read_only=True)
     owner = serializers.SlugRelatedField(slug_field='username', queryset=HelloUser.objects.filter())
     amount = serializers.IntegerField(read_only=True)
     updated_time = serializers.DateTimeField(read_only=True)
@@ -53,28 +87,6 @@ class PostCreateSerializer(serializers.ModelSerializer):
         post.updated_time = datetime.now()
         post.tag.set(tags)
         return post
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    post_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Category
-        fields = ('id', 'name', 'created_time', 'is_nav', 'owner', 'color', 'post_count')
-
-    def get_post_count(self, obj):
-        return obj.post_set.count()
-
-
-class TagSerializer(serializers.ModelSerializer):
-    post_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Tag
-        fields = ('id', 'name', 'created_time', 'owner', 'color', 'post_count')
-
-    def get_post_count(self, obj):
-        return obj.post_set.count()
 
 
 if __name__ == '__main__':

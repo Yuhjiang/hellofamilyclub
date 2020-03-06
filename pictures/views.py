@@ -1,4 +1,5 @@
 import json
+import base64
 from datetime import datetime
 
 from django.shortcuts import render, get_object_or_404, reverse
@@ -227,7 +228,9 @@ class MemberFaceAPI(APIView):
             image = body['image_url']
             image_type = 'URL'
         else:
-            image = body['image_file']
+            # 前端传输文件，经过base64编码后向百度云注册
+            file = request.FILES['files[]'].read()
+            image = base64.b64encode(file).decode('utf-8')
             image_type = 'BASE64'
         result = client.addUser(image=image, image_type=image_type,
                                 group_id=self.groupId, user_id=user_id)
