@@ -3,10 +3,13 @@ import json
 from django.contrib import auth
 
 from rest_framework.decorators import api_view
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import HelloUser
+from .serializers import UserSerializer
+from .pagination import ListPagination
 
 
 @api_view(['POST'])
@@ -50,3 +53,9 @@ def register_user(request):
                          'username': user.username,
                          'nickname': user.nickname,
                      }})
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = HelloUser.objects.filter()
+    pagination_class = ListPagination
