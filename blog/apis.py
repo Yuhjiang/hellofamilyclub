@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F, Q
 from django.core.cache import cache
 
 from rest_framework import viewsets, status
@@ -7,8 +7,8 @@ from rest_framework.response import Response
 
 from blog.models import Post, Category, Tag, Picture
 from blog.serializers import PostListSerializer, PostDetailSerializer, CategorySerializer,\
-    TagSerializer, PostCreateSerializer
-from blog.pagination import PostListPagination
+    TagSerializer, PostCreateSerializer, CategoryUpdateSerializer, PostUpdateSerializer
+from blog.pagination import ListPagination
 from hellofamilyclub.utils.decorators import login_required_api
 
 
@@ -42,10 +42,10 @@ class UpdateMixin:
         return Response(serializer.data)
 
 
-class PostViewSet(CreateMixin, viewsets.ModelViewSet):
+class PostViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     serializer_class = PostDetailSerializer
-    queryset = Post.objects.filter()
-    pagination_class = PostListPagination
+    queryset = Post.objects.filter(~Q(status=0))
+    pagination_class = ListPagination
 
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = PostDetailSerializer
@@ -59,6 +59,10 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         self.serializer_class = PostCreateSerializer
         return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = PostUpdateSerializer
+        return super().update(request, *args, **kwargs)
 
     @staticmethod
     def handle_visit(user, post_id):
@@ -79,19 +83,23 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
             cache.set(key, 60)
 
 
-class CategoryViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
+class CategoryViewSet(CreateMixin, viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.filter(status=Category.STATUS_NORMAL)
-    pagination_class = PostListPagination
+    pagination_class = ListPagination
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = CategoryUpdateSerializer
+        return super().update(request, *args, **kwargs)
 
 
 class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.filter(status=Tag.STATUS_NORMAL)
-    pagination_class = PostListPagination
+    pagination_class = ListPagination
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)

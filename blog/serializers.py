@@ -17,6 +17,12 @@ class CategorySerializer(serializers.ModelSerializer):
         return obj.post_set.count()
 
 
+class CategoryUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'color')
+
+
 class TagSerializer(serializers.ModelSerializer):
     post_count = serializers.SerializerMethodField()
 
@@ -49,7 +55,7 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'title', 'category', 'tag', 'desc', 'owner', 'created_time', 'updated_time',
-                  'amount']
+                  'amount', 'status']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -63,7 +69,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'title', 'desc', 'content', 'draft',
                   'category', 'tag', 'owner', 'created_time', 'updated_time',
-                  'is_md', 'amount']
+                  'is_md', 'amount', 'status']
 
     def update(self, instance, validated_data):
         instance.content = validated_data.get('content', instance.content)
@@ -77,7 +83,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'title', 'desc', 'content', 'draft',
                   'category', 'tag', 'owner', 'created_time', 'updated_time',
-                  'is_md', 'amount']
+                  'is_md', 'amount', 'status']
 
     def create(self, validated_data):
         # tag是多对多，所以需要实例化一个对象后再添加
@@ -87,6 +93,18 @@ class PostCreateSerializer(serializers.ModelSerializer):
         post.updated_time = datetime.now()
         post.tag.set(tags)
         return post
+
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'desc', 'content', 'draft', 'category', 'tag',
+                  'updated_time', 'status']
+
+    def update(self, instance, validated_data):
+        print(instance)
+        instance.updated_time = datetime.now()
+        return super().update(instance, validated_data)
 
 
 if __name__ == '__main__':
