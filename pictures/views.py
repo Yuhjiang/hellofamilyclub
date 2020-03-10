@@ -16,7 +16,7 @@ from .forms import MemberForm
 from .service.config import mongo_db
 from config.models import SideBar
 from hellofamilyclub.utils.utils import page_limit_skip
-from hellofamilyclub.utils.decorators import admin_required, admin_required_api
+from hellofamilyclub.utils.decorators import admin_required, admin_required_api_normal
 
 
 APP_ID = settings.APP_ID
@@ -93,7 +93,7 @@ Restful API
 
 
 class CookieAPI(APIView):
-    @method_decorator(admin_required_api)
+    @method_decorator(admin_required_api_normal)
     def post(self, request):
         body = json.loads(request.body)
         if body.get('cookie'):

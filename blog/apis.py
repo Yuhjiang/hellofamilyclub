@@ -1,5 +1,6 @@
 from django.db.models import F, Q
 from django.core.cache import cache
+from django.utils.decorators import method_decorator
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
@@ -9,10 +10,11 @@ from blog.models import Post, Category, Tag, Picture
 from blog.serializers import PostListSerializer, PostDetailSerializer, CategorySerializer,\
     TagSerializer, PostCreateSerializer, CategoryUpdateSerializer, PostUpdateSerializer
 from blog.pagination import ListPagination
-from hellofamilyclub.utils.decorators import login_required_api
+from hellofamilyclub.utils.decorators import login_required, login_required_api, admin_required_api
 
 
 class CreateMixin:
+    @login_required_api
     def create(self, request, *args, **kwargs):
         query_dict = request.data.copy()
         # owner要从token里取出来
@@ -25,6 +27,7 @@ class CreateMixin:
 
 
 class UpdateMixin:
+    @login_required_api
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -56,13 +59,19 @@ class PostViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
         self.serializer_class = PostListSerializer
         return super().list(request, *args, **kwargs)
 
+    @admin_required_api
     def create(self, request, *args, **kwargs):
         self.serializer_class = PostCreateSerializer
         return super().create(request, *args, **kwargs)
 
+    @admin_required_api
     def update(self, request, *args, **kwargs):
         self.serializer_class = PostUpdateSerializer
         return super().update(request, *args, **kwargs)
+
+    @admin_required_api
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     @staticmethod
     def handle_visit(user, post_id):
@@ -95,6 +104,10 @@ class CategoryViewSet(CreateMixin, viewsets.ModelViewSet):
         self.serializer_class = CategoryUpdateSerializer
         return super().update(request, *args, **kwargs)
 
+    @login_required_api
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     serializer_class = TagSerializer
@@ -104,9 +117,13 @@ class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
+    @login_required_api
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 @api_view(['POST'])
-@login_required_api
+@login_required
 def upload_picture(request):
     """
     上传图片的接口，存储默认使用七牛云

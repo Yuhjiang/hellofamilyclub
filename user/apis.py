@@ -1,6 +1,7 @@
 import json
 
 from django.contrib import auth
+from django.utils.decorators import method_decorator
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
@@ -10,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import HelloUser
 from .serializers import UserSerializer
 from .pagination import ListPagination
+from hellofamilyclub.utils.decorators import admin_required_api
 
 
 @api_view(['POST'])
@@ -59,3 +61,15 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = HelloUser.objects.filter()
     pagination_class = ListPagination
+
+    @admin_required_api
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
