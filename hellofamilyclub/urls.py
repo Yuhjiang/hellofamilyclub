@@ -23,19 +23,21 @@ from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
     MemberFaceList, GroupProfile, MemberFaceListDate, CookieAPI
 from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
-from user.apis import login_user
+from user.apis import login_user, register_user, UserViewSet
 from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, basename='api-post')
 router.register(r'category', CategoryViewSet, basename='api-category')
 router.register(r'tag', TagViewSet, basename='api-tag')
+router.register(r'user', UserViewSet, basename='api-user')
 
 urlpatterns = [
     path('api/upload_picture', upload_picture, name='upload-picture'),
     path('api/', include(router.urls)),
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
     path('api/login', login_user, name='login-user'),
+    path('api/register', register_user, name='register-user'),
     path('api/group', GroupList.as_view(), name='group-list'),
     path('api/member', MemberList.as_view(), name='member-list'),
     path('api/cookie', CookieAPI.as_view(), name='cookie'),

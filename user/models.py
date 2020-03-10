@@ -38,13 +38,17 @@ class HelloUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, verbose_name='用户名')
     password = models.CharField(max_length=100, verbose_name='密码')
     email = models.EmailField(max_length=100, default='', verbose_name='邮箱')
-    phone = models.CharField(max_length=50, default='', verbose_name='电话')
+    phone = models.CharField(max_length=50, default='', verbose_name='电话', null=True)
     role = models.ForeignKey(Role, verbose_name='角色', default=2,
                              on_delete=models.DO_NOTHING)
+    nickname = models.CharField(max_length=100, verbose_name='昵称', default='匿名用户')
+    avatar = models.URLField(verbose_name='头像',
+                             default='http://cdn.hellofamily.club/'
+                                     'logo%E7%9A%84%E5%89%AF%E6%9C%AC_Za0oX70.png')
     confirmed = models.BooleanField(default=False, verbose_name='验证用户')
     last_login = models.DateTimeField(null=True, verbose_name='上次登录时间')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    birthday = models.DateTimeField(null=True, verbose_name='生日')
+    birthday = models.DateField(default='1970-01-01', verbose_name='生日')
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
