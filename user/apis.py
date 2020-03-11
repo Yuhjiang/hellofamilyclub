@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import HelloUser
 from .serializers import UserSerializer
 from .pagination import ListPagination
-from hellofamilyclub.utils.decorators import admin_required_api
+from hellofamilyclub.utils.decorators import admin_required_api, same_user_required_api
 
 
 @api_view(['POST'])
@@ -66,7 +66,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @admin_required_api
+    @same_user_required_api(message='你没有权限修改用户信息')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
