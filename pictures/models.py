@@ -93,3 +93,22 @@ class Member(models.Model):
                 members = group.member_set.filter(status=Member.STATUS_NORMAL)
 
         return members.select_related('group')
+
+
+class CarouselPicture(models.Model):
+    STATUS_NORMAL = 1
+    STATUS_DELETE = 0
+    STATUS_ITEMS = (
+        (STATUS_NORMAL, '正常'),
+        (STATUS_DELETE, '删除'),
+    )
+
+    name = models.CharField(max_length=100, verbose_name='名称')
+    image = models.URLField(verbose_name='图片')
+    status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS,
+                                         verbose_name='状态')
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    @property
+    def current_images(self):
+        return self.objects.filter(status=self.STATUS_NORMAL)

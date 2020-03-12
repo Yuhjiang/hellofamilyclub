@@ -1,6 +1,5 @@
 from django.db.models import F, Q
 from django.core.cache import cache
-from django.utils.decorators import method_decorator
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view

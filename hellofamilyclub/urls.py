@@ -21,7 +21,7 @@ from rest_framework.routers import DefaultRouter
 
 from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
     MemberFaceList, GroupProfile, MemberFaceListDate, CookieAPI
-from pictures.apis import GroupList, MemberList
+from pictures.apis import GroupList, MemberList, CarouselPictureViewSet
 from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user, register_user, UserViewSet
 from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture
@@ -31,6 +31,7 @@ router.register(r'post', PostViewSet, basename='api-post')
 router.register(r'category', CategoryViewSet, basename='api-category')
 router.register(r'tag', TagViewSet, basename='api-tag')
 router.register(r'user', UserViewSet, basename='api-user')
+router.register(r'carousel', CarouselPictureViewSet, basename='api-carousel')
 
 urlpatterns = [
     path('api/upload_picture', upload_picture, name='upload-picture'),
