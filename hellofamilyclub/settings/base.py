@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
 ]
+
+ASGI_APPLICATION = 'hellofamilyclub.routing.application'
 
 AUTH_USER_MODEL = 'user.HelloUser'
 

@@ -25,6 +25,7 @@ from pictures.apis import GroupList, MemberList
 from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user, register_user, UserViewSet
 from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture
+from user.views import chat, room
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, basename='api-post')
@@ -33,6 +34,8 @@ router.register(r'tag', TagViewSet, basename='api-tag')
 router.register(r'user', UserViewSet, basename='api-user')
 
 urlpatterns = [
+    path('chat/<str:room_name>/', room, name='room'),
+    path('chat', chat, name='chat-room'),
     path('api/upload_picture', upload_picture, name='upload-picture'),
     path('api/', include(router.urls)),
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
