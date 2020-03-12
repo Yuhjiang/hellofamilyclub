@@ -15,7 +15,7 @@ from hellofamilyclub.utils.decorators import login_required, login_required_api,
 
 
 class CreateMixin:
-    @login_required_api
+    @login_required_api()
     def create(self, request, *args, **kwargs):
         query_dict = request.data.copy()
         # owner要从token里取出来
@@ -60,7 +60,7 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
         self.serializer_class = PostListSerializer
         return super().list(request, *args, **kwargs)
 
-    @login_required_api
+    @login_required_api()
     def create(self, request, *args, **kwargs):
         self.serializer_class = PostCreateSerializer
         return super().create(request, *args, **kwargs)
