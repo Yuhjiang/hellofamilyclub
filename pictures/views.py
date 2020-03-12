@@ -212,6 +212,7 @@ class MemberFaceListDate(MemberFaceList):
 class MemberFaceAPI(APIView):
     groupId = 'Hello_Project'
 
+    @method_decorator(admin_required_api_normal)
     def post(self, request):
         """
         注册人脸

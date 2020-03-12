@@ -28,7 +28,7 @@ class CreateMixin:
 
 
 class UpdateMixin:
-    @login_required_api
+    @same_user_required_api
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -112,7 +112,7 @@ class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     queryset = Tag.objects.filter(status=Tag.STATUS_NORMAL)
     pagination_class = ListPagination
 
-    @login_required_api
+    @same_user_required_api(message='你没有权限删除标签')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
