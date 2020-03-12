@@ -103,7 +103,7 @@ class CarouselPicture(models.Model):
         (STATUS_DELETE, '删除'),
     )
 
-    name = models.CharField(max_length=100, verbose_name='名称')
+    name = models.CharField(max_length=120, verbose_name='名称')
     image = models.URLField(verbose_name='图片')
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS,
                                          verbose_name='状态')
