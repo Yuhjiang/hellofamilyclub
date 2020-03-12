@@ -29,7 +29,6 @@ def admin_required_api_normal(function, message='你没有权限进行此操作'
 def login_required(function, message='你没有权限进行此操作'):
     @wraps(function)
     def wrapped_function(request, *args, **kwargs):
-        print(type(args[0]))
         current_user = request.user
         if current_user.is_authenticated:
             return function(request, *args, **kwargs)
