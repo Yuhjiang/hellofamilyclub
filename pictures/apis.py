@@ -1,8 +1,11 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework import viewsets
 
-from .models import Group, Member
-from .serializers import GroupSerializer, MemberSerializer
+from .models import Group, Member, CarouselPicture
+from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer
+from .pagination import ListPagination
+from hellofamilyclub.utils.decorators import admin_required_api
 
 
 class GroupList(generics.ListAPIView):
@@ -48,3 +51,25 @@ class MemberList(generics.ListAPIView):
 
         return Response({'status': 200, 'errMsg': '',
                          'data': {'members': serializer.data}})
+
+
+class CarouselPictureViewSet(viewsets.ModelViewSet):
+    serializer_class = CarouselPictureSerializer
+    queryset = CarouselPicture.objects.filter()
+    pagination_class = ListPagination
+
+    @admin_required_api(message='你没有权限添加图片')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限修改图片')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限删除图片')
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = CarouselPicture.STATUS_DELETE
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
