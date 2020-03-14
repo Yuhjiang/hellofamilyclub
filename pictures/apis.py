@@ -32,8 +32,16 @@ class CarouselPictureViewSet(viewsets.ModelViewSet):
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
-    queryset = Group.objects.filter()
+    queryset = Group.objects.all()
     pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        new_queryset = self.queryset
+        if query_params.get('order'):
+            new_queryset = new_queryset.order_by(query_params['order'])
+
+        return new_queryset
 
     @admin_required_api(message='你没有权限添加组合')
     def create(self, request, *args, **kwargs):
@@ -54,14 +62,17 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 class MemberViewSet(viewsets.ModelViewSet):
     serializer_class = MemberSerializer
-    queryset = Member.objects.all().order_by('-status')
+    queryset = Member.objects.all().order_by('-status', 'joined_time')
     pagination_class = ListPagination
 
     def get_queryset(self):
         query_params = self.request.query_params
+        new_queryset = self.queryset
         if query_params.get('group_id'):
-            return self.queryset.filter(group_id=query_params['group_id'])
-        return self.queryset
+            new_queryset = new_queryset.filter(group_id=query_params['group_id'])
+        if query_params.get('order'):
+            new_queryset = new_queryset.order_by(query_params['order'])
+        return new_queryset
 
     @admin_required_api(message='你没有权限添加成员')
     def create(self, request, *args, **kwargs):
