@@ -3,5 +3,5 @@ from .consumer import ChatConsumer, ServerSentEventsConsumer
 
 websocket_urlpatterns = [
     path('ws/chat/', ChatConsumer),
-    path('ws/time/', ServerSentEventsConsumer)
+    # path('ws/time/', ServerSentEventsConsumer)
 ]
