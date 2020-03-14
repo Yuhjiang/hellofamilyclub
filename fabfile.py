@@ -6,7 +6,7 @@ from fabric.contrib.files import exists, upload_template
 from fabric.decorators import task
 
 env.roledefs = {
-    'myserver': ['root@118.25.16.55'],
+    'myserver': ['root@119.8.34.229'],
 }
 
 env.PROJECT_NAME = 'hellofamily'

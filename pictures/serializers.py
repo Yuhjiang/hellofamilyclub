@@ -6,7 +6,7 @@ from .models import Group, Member, CarouselPicture
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['name_jp', 'status', 'created_time', 'homepage', 'color',
+        fields = ['name', 'name_jp', 'name_en', 'status', 'created_time', 'homepage', 'color',
                   'favicon', 'id']
 
 

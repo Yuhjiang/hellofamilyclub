@@ -18,7 +18,7 @@ class Group(models.Model):
     status = models.PositiveIntegerField(
         default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name='状态')
     created_time = models.DateField(null=True, verbose_name='成立时间')
-    homepage = models.URLField(verbose_name='主页')
+    homepage = models.URLField(null=True, verbose_name='主页')
     color = models.CharField(max_length=20, verbose_name='颜色')
     favicon = models.URLField(verbose_name='照片')
 
