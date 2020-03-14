@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     'blog',
     'dal',
     'dal_select2',
-    "corsheaders",
+    'corsheaders',
     'rest_framework',
+    'django_celery_results',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -187,7 +188,7 @@ MEDIA_URL = PREFIX_URL + QINIU_BUCKET_DOMAIN + "media/"
 
 
 # Redis缓存
-REDIS_URL = 'redis://127.0.0.1:6379/1'
+REDIS_URL = 'redis://127.0.0.1:6379'
 
 CACHES = {
     'default': 'django_redis.cache.RedisCache',
@@ -199,3 +200,9 @@ CACHES = {
     },
     'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
 }
+
+# CELERY配置
+CELERY_BROKER_URL = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_TASK_SERIALIZER = 'json'

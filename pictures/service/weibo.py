@@ -8,10 +8,11 @@ import json
 from datetime import datetime
 
 import django
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 
 from pictures.service.config import headers, image_url, IMAGE_DIR, mongo_db
 from hellofamilyclub.utils.utils import download_picture
+from pictures.tasks import send_recognize_mail as send_mail
 
 django.setup()
 logging.basicConfig(
@@ -48,20 +49,20 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
     :param download: 是否下载到本地
     :return:
     """
-    for page in range(start, end+1):
+    for page in range(start, end + 1):
         url = image_url.format(page)
         try:
             photo_list = fetch_json_response(url)
         except json.decoder.JSONDecodeError as e:
             logger.error(e)
-            send_mail('微博爬虫模块出错', message='出错信息: {}'.format(e),
-                      from_email='jiangyuhao@hellofamily.club', recipient_list=[
+            send_mail.delay('微博爬虫模块出错', message='出错信息: {}'.format(e),
+                            from_email='jiangyuhao@hellofamily.club', recipient_list=[
                     'jiang.yuhao0809@gmail.com', ], fail_silently=False)
             break
         except Exception as e:
             logger.error(e)
-            send_mail('微博爬虫模块出错', message='出错信息: {}'.format(e),
-                      from_email='jiangyuhao@hellofamily.club', recipient_list=[
+            send_mail.delay('微博爬虫模块出错', message='出错信息: {}'.format(e),
+                            from_email='jiangyuhao@hellofamily.club', recipient_list=[
                     'jiang.yuhao0809@gmail.com', ], fail_silently=False)
             break
 
@@ -78,9 +79,9 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
                 'created_time': created_time,
                 'created_date': created_time.replace(hour=0, minute=0, second=0),
                 'members': [],
-                'size': 0,              # 图片里的人数
-                'downloaded': False,    # 是否被下载到本地
-                'recognized': False       # 是否被识别过
+                'size': 0,  # 图片里的人数
+                'downloaded': False,  # 是否被下载到本地
+                'recognized': False  # 是否被识别过
             }
 
             exist = mongo_db['images'].find_one({'name': name})
