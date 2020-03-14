@@ -71,12 +71,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
                   'category', 'tag', 'owner', 'created_time', 'updated_time',
                   'is_md', 'amount', 'status']
 
-    def update(self, instance, validated_data):
-        instance.content = validated_data.get('content', instance.content)
-        instance.updated_time = datetime.now()
-        instance.save()
-        return instance
-
 
 class PostCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -102,7 +96,6 @@ class PostUpdateSerializer(serializers.ModelSerializer):
                   'updated_time', 'status']
 
     def update(self, instance, validated_data):
-        print(instance)
         instance.updated_time = datetime.now()
         return super().update(instance, validated_data)
 

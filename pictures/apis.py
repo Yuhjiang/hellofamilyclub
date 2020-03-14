@@ -1,56 +1,12 @@
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import viewsets
 
 from .models import Group, Member, CarouselPicture
-from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer
+from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer, \
+    MemberCreateSerializer
 from .pagination import ListPagination
 from hellofamilyclub.utils.decorators import admin_required_api
-
-
-class GroupList(generics.ListAPIView):
-    serializer_class = GroupSerializer
-
-    def get_queryset(self):
-        return Group.objects.filter()
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).order_by(
-            'created_time')
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response({'status': 200, 'errMsg': '',
-                         'data': {'groups': serializer.data}})
-
-
-class MemberList(generics.ListAPIView):
-    serializer_class = MemberSerializer
-
-    def get_queryset(self):
-        if self.request.query_params.get('group_id'):
-            group_id = int(self.request.query_params['group_id'])
-            return Member.objects.filter(group_id=group_id).order_by('-status')
-        else:
-            return Member.objects.filter()
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response({'status': 200, 'errMsg': '',
-                         'data': {'members': serializer.data}})
 
 
 class CarouselPictureViewSet(viewsets.ModelViewSet):
@@ -70,6 +26,70 @@ class CarouselPictureViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.status = CarouselPicture.STATUS_DELETE
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
+    pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        new_queryset = self.queryset
+        if query_params.get('order'):
+            new_queryset = new_queryset.order_by(query_params['order'])
+
+        return new_queryset
+
+    @admin_required_api(message='你没有权限添加组合')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限修改组合信息')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限删除组合')
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = Group.STATUS_DISBAND
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MemberViewSet(viewsets.ModelViewSet):
+    # TODO 后续需要在添加或修改成员信息的时候，重新注册一下人脸
+    serializer_class = MemberSerializer
+    queryset = Member.objects.all().order_by('-status', 'joined_time')
+    pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        new_queryset = self.queryset
+        if query_params.get('group_id'):
+            new_queryset = new_queryset.filter(group_id=query_params['group_id'])
+        if query_params.get('order'):
+            new_queryset = new_queryset.order_by(query_params['order'])
+        return new_queryset
+
+    @admin_required_api(message='你没有权限添加成员')
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = MemberCreateSerializer
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限修改成员信息')
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = MemberCreateSerializer
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限删除成员')
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = Member.STATUS_GRADUATED
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -6,15 +6,30 @@ from .models import Group, Member, CarouselPicture
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['name_jp', 'status', 'created_time', 'homepage', 'color',
+        fields = ['name', 'name_jp', 'name_en', 'status', 'created_time', 'homepage', 'color',
                   'favicon', 'id']
 
 
+class GroupSerializerForMember(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name_jp', 'color']
+
+
 class MemberSerializer(serializers.ModelSerializer):
+    group = GroupSerializerForMember()
+
     class Meta:
         model = Member
         fields = ['name_jp', 'name_en', 'name', 'status', 'joined_time',
-                  'graduated_time', 'color', 'birthday', 'group_id', 'id']
+                  'graduated_time', 'color', 'birthday', 'group', 'id']
+
+
+class MemberCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = ['name_jp', 'name_en', 'name', 'status', 'joined_time',
+                  'graduated_time', 'color', 'birthday', 'group', 'id']
 
 
 class CarouselPictureSerializer(serializers.ModelSerializer):
