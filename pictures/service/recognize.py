@@ -4,6 +4,7 @@
 import os
 import time
 import logging
+from datetime import datetime, timedelta
 
 import django
 
@@ -85,7 +86,10 @@ def face_to_database(name, response):
 
 
 def recognize_all_pictures():
-    pictures = list(mongo_db['images'].find({'recognized': False}))
+    pictures = list(mongo_db['images'].find(
+        {'recognized': False,
+         'created_time': {'$gte': datetime.now() - timedelta(days=7)}}
+    ))
     for picture in pictures:
         try:
             recognize_multi(picture, url=picture['url'], image_type='BASE64',
