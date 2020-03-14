@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 
 from .models import Group, Member, CarouselPicture
-from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer
+from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer, \
+    MemberCreateSerializer
 from .pagination import ListPagination
 from hellofamilyclub.utils.decorators import admin_required_api
 
@@ -61,6 +62,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class MemberViewSet(viewsets.ModelViewSet):
+    # TODO 后续需要在添加或修改成员信息的时候，重新注册一下人脸
     serializer_class = MemberSerializer
     queryset = Member.objects.all().order_by('-status', 'joined_time')
     pagination_class = ListPagination
@@ -76,10 +78,12 @@ class MemberViewSet(viewsets.ModelViewSet):
 
     @admin_required_api(message='你没有权限添加成员')
     def create(self, request, *args, **kwargs):
+        self.serializer_class = MemberCreateSerializer
         return super().create(request, *args, **kwargs)
 
     @admin_required_api(message='你没有权限修改成员信息')
     def update(self, request, *args, **kwargs):
+        self.serializer_class = MemberCreateSerializer
         return super().update(request, *args, **kwargs)
 
     @admin_required_api(message='你没有权限删除成员')

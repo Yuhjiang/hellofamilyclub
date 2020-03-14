@@ -60,8 +60,8 @@ class Member(models.Model):
     graduated_time = models.DateField(null=True, verbose_name='毕业时间')
     group = models.ForeignKey(Group, verbose_name='组合',
                               on_delete=models.DO_NOTHING)
-    favicon = models.URLField(verbose_name='照片')
-    color = models.CharField(max_length=20, verbose_name='成员色')
+    favicon = models.URLField(null=True, verbose_name='照片')
+    color = models.CharField(null=True, max_length=20, verbose_name='成员色')
     birthday = models.DateField(null=True, verbose_name='生日', blank=True)
     hometown = models.CharField(max_length=50, verbose_name='出生地')
     nickname = models.CharField(max_length=50, verbose_name='昵称')
