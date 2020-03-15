@@ -5,12 +5,14 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from blog.models import Post, Category, Tag, Picture
+from blog.models import Post, Category, Tag, Picture, Comment
 from blog.serializers import PostListSerializer, PostDetailSerializer, CategorySerializer,\
-    TagSerializer, PostCreateSerializer, CategoryUpdateSerializer, PostUpdateSerializer
+    TagSerializer, PostCreateSerializer, CategoryUpdateSerializer, PostUpdateSerializer, \
+    CommentListSerializer, CommentCreateSerializer
 from blog.pagination import ListPagination
 from hellofamilyclub.utils.decorators import login_required, login_required_api, admin_required_api,\
     same_user_required_api
+from hellofamilyclub.utils.websocket import send_message
 
 
 class CreateMixin:
@@ -114,6 +116,37 @@ class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     @same_user_required_api(message='你没有权限删除标签')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+class CommentViewSet(CreateMixin, viewsets.ModelViewSet):
+    serializer_class = CommentListSerializer
+    queryset = Comment.objects.all().order_by('-created_time')
+    pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        new_queryset = self.queryset
+        params = {}
+        if query_params.get('post_id'):
+            params['post_id'] = int(query_params['post_id'])
+        if query_params.get('status') or query_params.get('status') == 0:
+            params['status'] = int(query_params['status'])
+        new_queryset = new_queryset.filter(**params)
+        return new_queryset
+
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = CommentCreateSerializer
+        send_comment_message(request)
+        return super().create(request, *args, **kwargs)
+
+
+def send_comment_message(request):
+    room_name = request.data.get('to_user')
+    content = request.data.get('content')
+    current_user = request.user.nickname
+    message = '评论了你: {}'.format(content)
+
+    send_message(room_name, message, current_user)
 
 
 @api_view(['POST'])
