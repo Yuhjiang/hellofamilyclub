@@ -97,6 +97,8 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, verbose_name='文章', on_delete=models.CASCADE)
     to_user = models.ForeignKey(User, verbose_name='被评论者', on_delete=models.DO_NOTHING,
                                 related_name='to_user')
+    status = models.PositiveIntegerField(default=STATUS_NORMAL, verbose_name='状态',
+                                         choices=STATUS_ITEMS)
 
     def __str__(self):
         return self.content

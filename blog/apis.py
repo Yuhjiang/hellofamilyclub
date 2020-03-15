@@ -123,6 +123,17 @@ class CommentViewSet(CreateMixin, viewsets.ModelViewSet):
     queryset = Comment.objects.all().order_by('-created_time')
     pagination_class = ListPagination
 
+    def get_queryset(self):
+        query_params = self.request.query_params
+        new_queryset = self.queryset
+        params = {}
+        if query_params.get('post_id'):
+            params['post_id'] = int(query_params['post_id'])
+        if query_params.get('status') or query_params.get('status') == 0:
+            params['status'] = int(query_params['status'])
+        new_queryset = new_queryset.filter(**params)
+        return new_queryset
+
     def create(self, request, *args, **kwargs):
         self.serializer_class = CommentCreateSerializer
         send_comment_message(request)
