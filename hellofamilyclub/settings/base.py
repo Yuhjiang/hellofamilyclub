@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "channels",
 ]
 
 AUTH_USER_MODEL = 'user.HelloUser'
@@ -94,6 +95,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# websocket ASGI
+ASGI_APPLICATION = 'hellofamilyclub.routing.application'
 
 WSGI_APPLICATION = 'hellofamilyclub.wsgi.application'
 
@@ -206,3 +210,14 @@ CELERY_BROKER_URL = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_SERIALIZER = 'json'
+
+
+# Websocket设置
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        }
+    }
+}
