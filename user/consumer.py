@@ -15,7 +15,7 @@ class ChatConsumer(WebsocketConsumer):
         pass
 
     def receive(self, text_data):
-        print(self.channel_name)
+        print(self.scope['headers'])
         text_data_json = json.loads(text_data)
         message = '测试：' + text_data_json['message']
 

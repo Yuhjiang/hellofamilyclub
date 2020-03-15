@@ -212,3 +212,5 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+# KAFKA配置
