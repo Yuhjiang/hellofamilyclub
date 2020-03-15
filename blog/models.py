@@ -82,6 +82,26 @@ class Post(models.Model):
         return self.title
 
 
+class Comment(models.Model):
+    STATUS_NORMAL = 1
+    STATUS_DELETE = 0
+    STATUS_ITEMS = (
+        (STATUS_NORMAL, '正常'),
+        (STATUS_DELETE, '删除')
+    )
+
+    content = models.TextField(verbose_name='评论')
+    owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.DO_NOTHING,
+                              related_name='owner')
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    post = models.ForeignKey(Post, verbose_name='文章', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, verbose_name='被评论者', on_delete=models.DO_NOTHING,
+                                related_name='to_user')
+
+    def __str__(self):
+        return self.content
+
+
 class Picture(models.Model):
     owner = models.ForeignKey(User, verbose_name='上传者', on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255, verbose_name='图片名')

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from .models import Post, Category, Tag
+from .models import Post, Category, Tag, Comment
 from user.models import HelloUser
 
 
@@ -46,6 +46,12 @@ class CategorySerializerForPost(serializers.ModelSerializer):
         fields = ('id', 'name', 'color')
 
 
+class UserSerializerForPost(serializers.ModelSerializer):
+    class Meta:
+        model = HelloUser
+        fields = ('id', 'username', 'nickname', 'avatar')
+
+
 class PostListSerializer(serializers.ModelSerializer):
     category = CategorySerializerForPost(read_only=True)
     tag = TagSerializerForPost(many=True, read_only=True)
@@ -61,7 +67,7 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializerForPost(read_only=True)
     tag = TagSerializerForPost(many=True, read_only=True)
-    owner = serializers.SlugRelatedField(slug_field='username', queryset=HelloUser.objects.filter())
+    owner = UserSerializerForPost(read_only=True)
     amount = serializers.IntegerField(read_only=True)
     updated_time = serializers.DateTimeField(read_only=True)
 
@@ -98,6 +104,20 @@ class PostUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.updated_time = datetime.now()
         return super().update(instance, validated_data)
+
+
+class CommentListSerializer(serializers.ModelSerializer):
+    owner = UserSerializerForPost(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'post', 'owner', 'to_user', 'created_time']
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'post', 'owner', 'to_user', 'created_time']
 
 
 if __name__ == '__main__':
