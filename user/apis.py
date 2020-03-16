@@ -54,6 +54,7 @@ def register_user(request):
                          'id': user.id,
                          'username': user.username,
                          'nickname': user.nickname,
+                         'isAdmin': user.is_admin,
                      }})
 
 
