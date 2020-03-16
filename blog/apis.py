@@ -134,6 +134,7 @@ class CommentViewSet(CreateMixin, viewsets.ModelViewSet):
         new_queryset = new_queryset.filter(**params)
         return new_queryset
 
+    @login_required_api('请登录后再进行评论')
     def create(self, request, *args, **kwargs):
         self.serializer_class = CommentCreateSerializer
         send_comment_message(request)
