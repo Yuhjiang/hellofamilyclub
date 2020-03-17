@@ -8,7 +8,6 @@ import json
 from datetime import datetime
 
 import django
-# from django.core.mail import send_mail
 
 from pictures.service.config import headers, image_url, IMAGE_DIR, mongo_db
 from hellofamilyclub.utils.utils import download_picture
@@ -112,4 +111,5 @@ def fetch_weibo_pictures():
 
 
 if __name__ == '__main__':
-    fetch_weibo_pictures()
+    # fetch_weibo_pictures()
+    send_mail()

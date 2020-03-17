@@ -1,12 +1,15 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
+from rest_framework.views import APIView
+from rest_framework_simplejwt import authentication
 
 from .models import Group, Member, CarouselPicture
 from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer, \
     MemberCreateSerializer
 from .pagination import ListPagination
 from hellofamilyclub.utils.decorators import admin_required_api
+from pictures.tasks import recognize_picture
 
 
 class CarouselPictureViewSet(viewsets.ModelViewSet):
@@ -93,3 +96,19 @@ class MemberViewSet(viewsets.ModelViewSet):
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RecognizePicture(APIView):
+    """
+    主动请求识别人脸
+    """
+    # authentication_classes = (authentication.JWTAuthentication, )
+    # permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        picture_name = request.data.get('pictureName')
+        current_user = self.request.user
+
+        recognize_picture.delay(current_user.id, picture_name)
+
+        return Response({'data': 'success'}, status=status.HTTP_200_OK)
