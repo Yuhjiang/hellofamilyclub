@@ -24,7 +24,7 @@ def login_user(request):
         token = RefreshToken.for_user(user)
         return Response({'status': 200, 'errMsg': '',
                          'data': {
-                             'is_admin': user.is_admin,
+                             'isAdmin': user.is_admin,
                              'authToken': str(token.access_token),
                              'role': user.role.permission,
                              'id': user.id,

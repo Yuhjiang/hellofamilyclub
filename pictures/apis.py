@@ -102,8 +102,8 @@ class RecognizePicture(APIView):
     """
     主动请求识别人脸
     """
-    # authentication_classes = (authentication.JWTAuthentication, )
-    # permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = (authentication.JWTAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def post(self, request):
         picture_name = request.data.get('pictureName')

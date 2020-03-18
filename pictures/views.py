@@ -175,10 +175,24 @@ class MemberFaceListDate(MemberFaceList):
     def get(self, request):
         page = request.GET.get('page')
         limit = request.GET.get('limit')
-        if request.GET.get('member2') and int(request.GET['member2']):
-            query = self.double_member(request.GET)
-        elif request.GET.get('member1') and int(request.GET['member1']):
-            query = self.single_member(request.GET)
+        if request.GET.get("group_second"):
+            if request.GET.get('member_second') and int(request.GET['member_second']):
+                query = self.double_member(request.GET)
+            else:
+                try:
+                    group = Group.objects.get(id=int(request.GET["group_second"]))
+                    query = {"members.group": group.name_en}
+                except Group.DoesNotExist:
+                    query = {}
+        elif request.GET.get("group_first"):
+            if request.GET.get('member_first') and int(request.GET['member_first']):
+                query = self.single_member(request.GET)
+            else:
+                try:
+                    group = Group.objects.get(id=int(request.GET["group_first"]))
+                    query = {"members.group": group.name_en}
+                except Group.DoesNotExist:
+                    query = {}
         else:
             query = self.all_member()
         limit, skip = page_limit_skip(page, limit)

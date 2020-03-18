@@ -55,7 +55,7 @@ class UserSerializerForPost(serializers.ModelSerializer):
 class PostListSerializer(serializers.ModelSerializer):
     category = CategorySerializerForPost(read_only=True)
     tag = TagSerializerForPost(many=True, read_only=True)
-    owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    owner = UserSerializerForPost(read_only=True)
     amount = serializers.IntegerField(read_only=True)
 
     class Meta:
