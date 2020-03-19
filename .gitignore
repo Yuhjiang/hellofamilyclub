@@ -7,3 +7,5 @@
 /config/migrations/
 /jobs/migrations/
 /blog/migrations/
+/news/migrations/
+/.qiniu_pythonsdk_hostscache.json
