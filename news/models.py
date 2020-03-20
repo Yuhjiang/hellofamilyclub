@@ -23,10 +23,11 @@ class HelloNews(models.Model):
     title = models.CharField(max_length=255, verbose_name='标题')
     content = models.TextField(verbose_name='内容')
     created_date = models.DateField(default=timezone.now, verbose_name='时间')
+    source = models.URLField(verbose_name='原始链接')
     resource = models.TextField(null=True, verbose_name='资源')
     group = models.ManyToManyField(Group, verbose_name='相关组合')
     member = models.ManyToManyField(Member, verbose_name='相关成员')
-    type = models.ForeignKey(NewsType, verbose_name='分类', on_delete=models.DO_NOTHING)
+    category = models.ForeignKey(NewsType, verbose_name='分类', on_delete=models.DO_NOTHING)
 
     class Meta:
         verbose_name = verbose_name_plural = '资讯'
