@@ -62,9 +62,17 @@ async def collect_hello_project_all_news(start, end):
         if current % 10 == 0:
             await asyncio.wait(tasks)
             tasks = []
+    if tasks:
+        await asyncio.wait(tasks)
+
+
+def run_collect_hello_project_news():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(collect_hello_project_all_news(1, 2))
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
+    # loop = asyncio.get_event_loop()
     # loop.run_until_complete(collect_news('http://www.helloproject.com/news/'))
-    loop.run_until_complete(collect_hello_project_all_news(1, 101))
+    # loop.run_until_complete(collect_hello_project_all_news(1, 101))
+    run_collect_hello_project_news()

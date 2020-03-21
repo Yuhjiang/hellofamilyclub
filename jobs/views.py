@@ -17,6 +17,7 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from pictures.service.weibo import fetch_weibo_pictures
 from pictures.service.recognize import recognize_all_pictures
 from pictures.service.config import db_client
+from news.service.helloproject_news import run_collect_hello_project_news
 
 
 logging.basicConfig(filename='/Users/yuhao/log/job.log', filemode='a')
@@ -47,6 +48,9 @@ scheduler.add_job(fetch_weibo_pictures, 'interval', hours=1,
                   jobstore='mongo', max_instances=1)
 scheduler.add_job(recognize_all_pictures, 'interval', hours=1,
                   replace_existing=True, id='recognize_all_pictures',
+                  jobstore='mongo', max_instances=1)
+scheduler.add_job(run_collect_hello_project_news, 'interval', hours=2,
+                  replace_existing=True, id='collect_hello_project_news',
                   jobstore='mongo', max_instances=1)
 
 scheduler.start()
