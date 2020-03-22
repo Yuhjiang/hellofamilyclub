@@ -10,14 +10,20 @@ class GroupSerializer(serializers.ModelSerializer):
                   'favicon', 'id']
 
 
-class GroupSerializerForMember(serializers.ModelSerializer):
+class GroupSerializerDetail(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['id', 'name_jp', 'color']
 
 
+class MemberSerializerDetail(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = ['id', 'name_jp', 'color']
+
+
 class MemberSerializer(serializers.ModelSerializer):
-    group = GroupSerializerForMember()
+    group = GroupSerializerDetail()
 
     class Meta:
         model = Member

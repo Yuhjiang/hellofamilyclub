@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'pictures',
     'jobs',
     'blog',
+    'news',
     'dal',
     'dal_select2',
     'corsheaders',
