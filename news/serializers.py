@@ -34,13 +34,12 @@ class HelloNewsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HelloNews
-        fields = ['id', 'title', 'content', 'created_date', 'resource', 'group', 'member', 'category']
+        fields = ['id', 'title', 'content', 'created_date', 'resource', 'group', 'member',
+                  'category']
 
 
 class HelloNewsSerializerEdit(serializers.ModelSerializer):
-    group = GroupSerializerDetail(many=True)
-    member = MemberSerializerDetail(many=True)
-
     class Meta:
         model = HelloNews
-        fields = ['id', 'title', 'content', 'created_date', 'resource', 'group', 'member', 'category']
+        fields = ['id', 'title', 'content', 'created_date', 'resource', 'group', 'member',
+                  'category']

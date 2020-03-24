@@ -5,6 +5,7 @@ import os
 import requests
 import logging
 import json
+import time
 from datetime import datetime
 
 import django
@@ -98,6 +99,8 @@ def get_pictures_info(start=1, end=1, save=False, download=False):
 
         if data_to_save:
             mongo_db['images'].insert_many(data_to_save)
+
+        time.sleep(60)
 
 
 def fetch_weibo_pictures():
