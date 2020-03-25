@@ -101,10 +101,10 @@ def get_groups(soup):
 def get_category(soup, category=None):
     if not category:
         category = soup.select('.icon-schedule')
-    if category:
-        category = category[0].string
-    else:
-        category = DEFAULT_CATEGORY
+        if category:
+            category = category[0].string
+        else:
+            category = DEFAULT_CATEGORY
     category = find_news_type(category)
     return category
 
