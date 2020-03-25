@@ -19,18 +19,18 @@ DEFAULT_CATEGORY = NewsType.objects.get(name='EVENT')
 
 
 @shared_task()
-def get_information_from_page_task(html, url):
+def get_information_from_page_task(html, url, category=None):
     try:
-        get_information_from_page(html, url)
+        get_information_from_page(html, url, category)
     except Exception as e:
         print('error, {}, url: {}'.format(e, url))
 
 
-def get_information_from_page(html, url):
+def get_information_from_page(html, url, category=None):
     detail_soup = BeautifulSoup(html, 'lxml')
     news_detail = get_news_detail_content(detail_soup)
 
-    category = get_category(news_detail)
+    category = get_category(news_detail, category)
     title = get_title(news_detail).get_text()
     created_date = get_start_date(news_detail)
     groups = get_groups(news_detail)
@@ -98,8 +98,9 @@ def get_groups(soup):
     return groups_object
 
 
-def get_category(soup):
-    category = soup.select('.icon-schedule')
+def get_category(soup, category=None):
+    if not category:
+        category = soup.select('.icon-schedule')
     if category:
         category = category[0].string
     else:
