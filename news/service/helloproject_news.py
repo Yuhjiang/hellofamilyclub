@@ -28,7 +28,7 @@ async def fetch_news_from_html(soup):
     categories = []
     for news in news_lists:
         news_url = news.find('a')['href']
-        category = news.select('.icon-schedule')[0].string
+        category = news.select('.icon-schedule')
         task = asyncio.create_task(get_news_detail(news_url))
         tasks.append(task)
         categories.append(category)
