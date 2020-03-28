@@ -52,6 +52,21 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
     queryset = Post.objects.filter(~Q(status=0))
     pagination_class = ListPagination
 
+    def get_queryset(self):
+        query_params = self.request.query_params
+
+        params = {}
+        if query_params.get('category'):
+            params['category_id'] = int(query_params['category'])
+        if query_params.get('tag'):
+            params['tag'] = int(query_params['tag'])
+        if query_params.get('title'):
+            params['title__contains'] = query_params['title']
+        if query_params.get('nickname'):
+            params['owner__nickname__contains'] = query_params['nickname']
+        new_queryset = self.queryset.filter(**params)
+        return new_queryset
+
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = PostDetailSerializer
         self.handle_visit(request.user, kwargs.get('pk'))
