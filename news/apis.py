@@ -28,7 +28,6 @@ class HelloNewsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query_params = self.request.query_params
-        new_queryset = self.queryset
         params = {}
         if query_params.get('category'):
             params['category_id'] = int(query_params['category'])
@@ -36,10 +35,15 @@ class HelloNewsViewSet(viewsets.ModelViewSet):
             params['group__in'] = [int(query_params['group'])]
         if query_params.get('member'):
             params['member__in'] = [int(query_params['member'])]
-        new_queryset = new_queryset.filter(**params)
+        new_queryset = self.queryset.filter(**params)
         return new_queryset
 
-    @admin_required_api(message="只有管理员可以修改资讯内容")
+    @admin_required_api(message='只有管理员可以修改资讯内容')
     def update(self, request, *args, **kwargs):
         self.serializer_class = HelloNewsSerializerEdit
         return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='只有管理员可以添加资讯内容')
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = HelloNewsSerializerEdit
+        return super().create(request, *args, **kwargs)
