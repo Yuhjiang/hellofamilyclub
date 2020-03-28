@@ -41,7 +41,7 @@ class HelloUser(AbstractUser):
     phone = models.CharField(max_length=50, default='', verbose_name='电话', null=True)
     role = models.ForeignKey(Role, verbose_name='角色', default=2,
                              on_delete=models.DO_NOTHING)
-    nickname = models.CharField(max_length=100, verbose_name='昵称', default='匿名用户')
+    nickname = models.CharField(max_length=20, verbose_name='昵称', default='匿名用户')
     avatar = models.URLField(verbose_name='头像',
                              default='http://cdn.hellofamily.club/'
                                      'logo%E7%9A%84%E5%89%AF%E6%9C%AC_Za0oX70.png')
