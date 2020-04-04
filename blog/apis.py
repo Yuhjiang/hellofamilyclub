@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import F, Q
 from django.core.cache import cache
 
@@ -64,6 +66,12 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
             params['title__contains'] = query_params['title']
         if query_params.get('nickname'):
             params['owner__nickname__contains'] = query_params['nickname']
+        if query_params.get('owner'):
+            params['owner__nickname__contains'] = query_params['owner']
+        if query_params.get('start_date') and query_params.get('end_date'):
+            params['created_time__range'] = (
+                datetime.strptime(query_params['start_date'], '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'], '%Y-%m-%d %H:%M:%S'))
         new_queryset = self.queryset.filter(**params)
         return new_queryset
 
