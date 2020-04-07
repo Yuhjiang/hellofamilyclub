@@ -122,6 +122,15 @@ class CategoryViewSet(CreateMixin, viewsets.ModelViewSet):
     queryset = Category.objects.filter(status=Category.STATUS_NORMAL)
     pagination_class = ListPagination
 
+    def get_queryset(self):
+        query_params = self.request.query_params
+
+        params = {}
+        if query_params.get('name'):
+            params['name__contains'] = query_params['name']
+        new_queryset = self.queryset.filter(**params)
+        return new_queryset
+
     def update(self, request, *args, **kwargs):
         self.serializer_class = CategoryUpdateSerializer
         return super().update(request, *args, **kwargs)
@@ -135,6 +144,15 @@ class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.filter(status=Tag.STATUS_NORMAL)
     pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+
+        params = {}
+        if query_params.get('name'):
+            params['name__contains'] = query_params['name']
+        new_queryset = self.queryset.filter(**params)
+        return new_queryset
 
     @same_user_required_api(message='你没有权限删除标签')
     def destroy(self, request, *args, **kwargs):
