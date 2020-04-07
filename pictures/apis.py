@@ -43,7 +43,15 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query_params = self.request.query_params
-        new_queryset = self.queryset
+        params = {}
+
+        if query_params.get('name_jp'):
+            params['name_jp__contains'] = query_params['name_jp']
+        if query_params.get('name_en'):
+            params['name_en__contains'] = query_params['name_en']
+
+        new_queryset = self.queryset.filter(**params)
+
         if query_params.get('order'):
             new_queryset = new_queryset.order_by(query_params['order'])
 
