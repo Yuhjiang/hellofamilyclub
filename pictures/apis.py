@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Q
 
 from rest_framework import status
@@ -49,6 +51,12 @@ class GroupViewSet(viewsets.ModelViewSet):
             params['name_jp__contains'] = query_params['name_jp']
         if query_params.get('name_en'):
             params['name_en__contains'] = query_params['name_en']
+        if query_params.get('start_date'):
+            params['created_time__range'] = (
+                datetime.strptime(query_params['start_date'],
+                                  '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'],
+                                  '%Y-%m-%d %H:%M:%S'))
 
         new_queryset = self.queryset.filter(**params)
 
@@ -94,6 +102,12 @@ class MemberViewSet(viewsets.ModelViewSet):
             params['name_jp__contains'] = query_params['name_jp']
         if query_params.get('name_en'):
             params['name_en__contains'] = query_params['name_en']
+        if query_params.get('start_date'):
+            params['joined_time__range'] = (
+                datetime.strptime(query_params['start_date'],
+                                  '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'],
+                                  '%Y-%m-%d %H:%M:%S'))
 
         new_queryset = self.queryset.filter(*param_args, **params)
         return new_queryset
