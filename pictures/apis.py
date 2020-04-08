@@ -1,3 +1,7 @@
+from datetime import datetime
+
+from django.db.models import Q
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions
@@ -41,7 +45,21 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query_params = self.request.query_params
-        new_queryset = self.queryset
+        params = {}
+
+        if query_params.get('name_jp'):
+            params['name_jp__contains'] = query_params['name_jp']
+        if query_params.get('name_en'):
+            params['name_en__contains'] = query_params['name_en']
+        if query_params.get('start_date'):
+            params['created_time__range'] = (
+                datetime.strptime(query_params['start_date'],
+                                  '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'],
+                                  '%Y-%m-%d %H:%M:%S'))
+
+        new_queryset = self.queryset.filter(**params)
+
         if query_params.get('order'):
             new_queryset = new_queryset.order_by(query_params['order'])
 
@@ -72,11 +90,26 @@ class MemberViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query_params = self.request.query_params
-        new_queryset = self.queryset
+
+        params = {}
+        param_args = []
         if query_params.get('group_id'):
-            new_queryset = new_queryset.filter(group_id=query_params['group_id'])
-        if query_params.get('order'):
-            new_queryset = new_queryset.order_by(query_params['order'])
+            params['group_id'] = query_params['group_id']
+        if query_params.get('group'):
+            param_args.append(Q(group__name_en__contains=query_params['group'])
+                              | Q(group__name_jp__contains=query_params['group']))
+        if query_params.get('name_jp'):
+            params['name_jp__contains'] = query_params['name_jp']
+        if query_params.get('name_en'):
+            params['name_en__contains'] = query_params['name_en']
+        if query_params.get('start_date'):
+            params['joined_time__range'] = (
+                datetime.strptime(query_params['start_date'],
+                                  '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'],
+                                  '%Y-%m-%d %H:%M:%S'))
+
+        new_queryset = self.queryset.filter(*param_args, **params)
         return new_queryset
 
     @admin_required_api(message='你没有权限添加成员')

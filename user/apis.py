@@ -63,6 +63,20 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = HelloUser.objects.filter()
     pagination_class = ListPagination
 
+    def get_queryset(self):
+        query_params = self.request.query_params
+        params = {}
+
+        if query_params.get('username'):
+            params['username__contains'] = query_params['username']
+        if query_params.get('nickname'):
+            params['nickname__contains'] = query_params['nickname']
+        if query_params.get('email'):
+            params['email__contains'] = query_params['email']
+
+        new_queryset = self.queryset.filter(**params)
+        return new_queryset
+
     @admin_required_api
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)

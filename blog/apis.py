@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import F, Q
 from django.core.cache import cache
 
@@ -64,6 +66,12 @@ class PostViewSet(CreateMixin, viewsets.ModelViewSet):
             params['title__contains'] = query_params['title']
         if query_params.get('nickname'):
             params['owner__nickname__contains'] = query_params['nickname']
+        if query_params.get('owner'):
+            params['owner__nickname__contains'] = query_params['owner']
+        if query_params.get('start_date') and query_params.get('end_date'):
+            params['created_time__range'] = (
+                datetime.strptime(query_params['start_date'], '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'], '%Y-%m-%d %H:%M:%S'))
         new_queryset = self.queryset.filter(**params)
         return new_queryset
 
@@ -114,6 +122,15 @@ class CategoryViewSet(CreateMixin, viewsets.ModelViewSet):
     queryset = Category.objects.filter(status=Category.STATUS_NORMAL)
     pagination_class = ListPagination
 
+    def get_queryset(self):
+        query_params = self.request.query_params
+
+        params = {}
+        if query_params.get('name'):
+            params['name__contains'] = query_params['name']
+        new_queryset = self.queryset.filter(**params)
+        return new_queryset
+
     def update(self, request, *args, **kwargs):
         self.serializer_class = CategoryUpdateSerializer
         return super().update(request, *args, **kwargs)
@@ -127,6 +144,15 @@ class TagViewSet(CreateMixin, UpdateMixin, viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.filter(status=Tag.STATUS_NORMAL)
     pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+
+        params = {}
+        if query_params.get('name'):
+            params['name__contains'] = query_params['name']
+        new_queryset = self.queryset.filter(**params)
+        return new_queryset
 
     @same_user_required_api(message='你没有权限删除标签')
     def destroy(self, request, *args, **kwargs):
