@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = False
+DEBUG = True
 
 DATABASES = {
     'default': {
@@ -15,11 +15,11 @@ DATABASES = {
         }
     }
 }
-ALLOWED_HOSTS = ['hellofamily.club']
+ALLOWED_HOSTS = []
 
 # 微博爬虫和识别
 MONGODB = {
-    'url': 'mongodb://localhost:27017'
+    'url': 'mongodb://root:{}@119.8.34.229:27017/?authSource=admin'.format(os.environ.get('mysqlPassword'))
 }
 IMAGE_DIR = '/home/images/hellofamily'
 IMAGE_URL = 'http://photo.weibo.com/photos/get_all?uid=2019518032&album_id=3555502164890927&count=30&page={}' \
@@ -29,7 +29,7 @@ APP_ID = '14303012'
 API_KEY = 't4GyIHmNULqO50d0RlvY86PV'
 SECRET_KEY = 'VxKOFYYdvvRuk4MGrlyxlg6asArkRUlR'
 
-REDIS_URL = 'redis://119.8.34.229:6379/1'
+REDIS_URL = 'redis://:{}@119.8.34.229:6379/1'.format(os.environ.get('redisPassword'))
 
 CACHES = {
     'default': {
@@ -56,3 +56,21 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = 'hellofamily.club邮件报警'
+
+
+# CELERY配置
+CELERY_BROKER_URL = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_TASK_SERIALIZER = 'json'
+
+
+# Websocket设置
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [REDIS_URL],
+        }
+    }
+}
