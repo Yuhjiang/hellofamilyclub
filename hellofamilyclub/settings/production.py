@@ -6,8 +6,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': '123-zxcvAS',
-        'HOST': '127.0.0.1',
+        'PASSWORD': os.environ.get('mysqlPassword'),
+        'HOST': '119.8.34.229',
         'PORT': '3306',
         'NAME': "hellofamily_db",
         'TEST': {
@@ -29,7 +29,7 @@ APP_ID = '14303012'
 API_KEY = 't4GyIHmNULqO50d0RlvY86PV'
 SECRET_KEY = 'VxKOFYYdvvRuk4MGrlyxlg6asArkRUlR'
 
-REDIS_URL = 'redis://127.0.0.1:6379/1'
+REDIS_URL = 'redis://119.8.34.229:6379/1'
 
 CACHES = {
     'default': {
@@ -37,6 +37,7 @@ CACHES = {
         'LOCATION': REDIS_URL,
         'TIMEOUT': 300,
         'OPTIONS': {
+            'PASSWORD': os.environ.get('redisPassword'),
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
