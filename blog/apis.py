@@ -7,7 +7,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from blog.models import Post, Category, Tag, Picture, Comment
+from blog.models import Post, Category, Tag, Comment
+from album.models import Picture, Album
 from blog.serializers import PostListSerializer, PostDetailSerializer, CategorySerializer,\
     TagSerializer, PostCreateSerializer, CategoryUpdateSerializer, PostUpdateSerializer, \
     CommentListSerializer, CommentCreateSerializer
@@ -201,6 +202,20 @@ def upload_picture(request):
     """
     file = request.FILES['content']
     user = request.user
-    instance = Picture(name=file.name, content=file, owner_id=user.id)
+    album = get_default_album(user.id)
+    instance = Picture(name=file.name, content=file, owner_id=user.id, album_id=album)
     instance.save()
     return Response({'status': 200, 'data': {'url': instance.content.url}})
+
+
+def get_default_album(user_id):
+    """
+    获取某个人用户的默认相册
+    :param user_id: 用户id
+    :return: Album id
+    """
+    try:
+        album = Album.objects.get(owner_id=user_id, name='默认相册')
+        return album.id
+    except Album.DoesNotExist:
+        return None

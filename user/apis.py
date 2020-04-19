@@ -1,7 +1,7 @@
 import json
+from datetime import datetime
 
 from django.contrib import auth
-from django.utils.decorators import method_decorator
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import HelloUser
 from .serializers import UserSerializer
 from .pagination import ListPagination
+from album.models import Album
 from hellofamilyclub.utils.decorators import admin_required_api, same_user_required_api
 
 
@@ -48,6 +49,9 @@ def register_user(request):
     user = HelloUser(username=username, nickname=nickname, email=email)
     user.set_password(password)
     user.save()
+    # 创建默认相册
+    album = Album(owner_id=user.id, updated_time=datetime.now())
+    album.save()
 
     return Response({'status': 200, 'errMsg': '',
                      'data': {

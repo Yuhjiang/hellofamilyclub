@@ -26,6 +26,7 @@ from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user, register_user, UserViewSet
 from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture, CommentViewSet
 from news.apis import NewsTypeViewSet, HelloNewsViewSet
+from album.apis import AlbumViewSet
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, basename='api-post')
@@ -38,6 +39,7 @@ router.register(r'member', MemberViewSet, basename='api-member')
 router.register(r'comment', CommentViewSet, basename='api-comment')
 router.register(r'newstype', NewsTypeViewSet, basename='api-news-type')
 router.register(r'hellonews', HelloNewsViewSet, basename='api-hello-news')
+router.register(r'album', AlbumViewSet, basename='api-album')
 
 urlpatterns = [
     path('api/recognize_picture/', RecognizePicture.as_view(), name='recognize-picture'),
