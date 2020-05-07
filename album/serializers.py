@@ -2,7 +2,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from .models import Album
+from .models import Album, Picture
 from user.models import HelloUser
 
 
@@ -26,3 +26,11 @@ class AlbumSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.updated_time = datetime.now()
         return super().update(instance, validated_data)
+
+
+class PictureSerializer(serializers.ModelSerializer):
+    owner = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
+    class Meta:
+        model = Picture
+        fields = ('id', 'name', 'owner', 'created_time', 'content')

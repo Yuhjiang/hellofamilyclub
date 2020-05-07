@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import signals
+from django.dispatch.dispatcher import receiver
 
 from user.models import HelloUser as User
 
@@ -21,3 +23,8 @@ class Picture(models.Model):
     content = models.ImageField(verbose_name='图片')
     album = models.ForeignKey(Album, verbose_name='相册', on_delete=models.SET_NULL, blank=True,
                               null=True)
+
+
+@receiver(signals.pre_delete, sender=Picture)
+def picture_delete(sender, instance: Picture, **kwargs):
+    instance.content.delete(False)

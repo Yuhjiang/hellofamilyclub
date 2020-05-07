@@ -4,8 +4,8 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from album.models import Album
-from album.serializers import AlbumSerializer
+from album.models import Album, Picture
+from album.serializers import AlbumSerializer, PictureSerializer
 from album.pagination import LimitOffsetPagination
 from hellofamilyclub.utils.permissions import SameUserPermission
 
@@ -28,3 +28,6 @@ class AlbumViewSet(CreateMixin, viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticated & SameUserPermission]
 
 
+class PictureViewSet(viewsets.ModelViewSet):
+    serializer_class = PictureSerializer
+    queryset = Picture.objects.all()

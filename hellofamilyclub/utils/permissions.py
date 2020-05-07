@@ -21,7 +21,7 @@ class SameUserPermission(BasePermission):
     message = '你没有权限进行此操作'
 
     def has_object_permission(self, request, view, obj):
-        if request.method in ['DELETE', 'PUE']:
+        if request.method in ['DELETE', 'PUT']:
             return bool((request.user and request.user.is_statff) or
                         is_same_user(obj, request.user))
         return True
