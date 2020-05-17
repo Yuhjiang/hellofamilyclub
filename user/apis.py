@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.contrib import auth
 from django.utils.decorators import method_decorator
@@ -31,6 +32,7 @@ def login_user(request):
                              'avatar': user.avatar,
                              'nickname': user.nickname,
                              'refreshToken': str(token),
+                             'login_time': datetime.now()
                          }})
     else:
         return Response({'status': 500, 'errMsg': '用户名或密码错误'})
