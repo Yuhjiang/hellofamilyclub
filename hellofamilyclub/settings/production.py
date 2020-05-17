@@ -15,7 +15,7 @@ DATABASES = {
         }
     }
 }
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hellofamily.club']
 
 # 微博爬虫和识别
 MONGODB = {

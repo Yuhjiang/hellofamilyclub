@@ -9,3 +9,4 @@
 /blog/migrations/
 /news/migrations/
 /.qiniu_pythonsdk_hostscache.json
+/album/migrations/

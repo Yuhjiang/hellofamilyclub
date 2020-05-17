@@ -13,7 +13,8 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ('id', 'name', 'created_time', 'is_nav', 'owner', 'color', 'post_count')
 
-    def get_post_count(self, obj):
+    @staticmethod
+    def get_post_count(obj):
         return obj.post_set.count()
 
 
