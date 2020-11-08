@@ -1,6 +1,9 @@
 from datetime import datetime
+from io import BytesIO
+import zipfile
 
 from django.db.models import Q
+from django.http.response import HttpResponse
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,6 +17,8 @@ from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSeria
 from .pagination import ListPagination
 from hellofamilyclub.utils.decorators import admin_required_api
 from pictures.tasks import recognize_picture
+from hellofamilyclub.utils.utils import download_picture
+
 
 
 class CarouselPictureViewSet(viewsets.ModelViewSet):
@@ -145,3 +150,22 @@ class RecognizePicture(APIView):
         recognize_picture.delay(current_user.id, picture_name)
 
         return Response({'data': 'success'}, status=status.HTTP_200_OK)
+
+
+class DownloadPictures(APIView):
+    authentication_classes = (authentication.JWTAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        picture_list = request.data.get('picture_list')
+        zip_file = BytesIO()
+        with zipfile.ZipFile(zip_file, 'a') as f:
+            for picture in picture_list:
+                pic = download_picture(picture['url'], save=False)
+                f.writestr(picture['name'], BytesIO(pic).getvalue())
+
+        zip_file.seek(0)
+        response = HttpResponse(zip_file.getvalue(),
+                                content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=图片.zip'
+        return response
