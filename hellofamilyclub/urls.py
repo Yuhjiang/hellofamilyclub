@@ -21,7 +21,7 @@ from rest_framework.routers import DefaultRouter
 
 from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
     MemberFaceList, GroupProfile, MemberFaceListDate, CookieAPI
-from pictures.apis import CarouselPictureViewSet, GroupViewSet, MemberViewSet, RecognizePicture
+from pictures.apis import CarouselPictureViewSet, GroupViewSet, MemberViewSet, RecognizePicture, DownloadPictures
 from pictures.autocomplete import MemberAutoComplete
 from user.apis import login_user, register_user, UserViewSet
 from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture, CommentViewSet
@@ -44,6 +44,7 @@ router.register(r'picture', PictureViewSet, basename='api-picture')
 
 urlpatterns = [
     path('api/recognize_picture/', RecognizePicture.as_view(), name='recognize-picture'),
+    path('api/download_pictures/', DownloadPictures.as_view(), name='download-picuturs'),
     path('api/upload_picture', upload_picture, name='upload-picture'),
     path('api/', include(router.urls)),
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
