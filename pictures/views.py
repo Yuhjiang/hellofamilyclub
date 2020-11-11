@@ -1,95 +1,36 @@
-import json
 import base64
+import json
+import zipfile
 from datetime import datetime
+from io import BytesIO
 
-from django.shortcuts import render, get_object_or_404, reverse
-from django.views import View
-from django.conf import settings
-from django.utils.decorators import method_decorator
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from aip import AipFace
+from django.conf import settings
+from django.db.models import Q
+from django.http.response import HttpResponse
+from django.utils.decorators import method_decorator
+from rest_framework import status
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt import authentication
 
-from .models import Member, Group
-from .forms import MemberForm
-from .service.config import mongo_db
-from config.models import SideBar
+from hellofamilyclub.utils.decorators import admin_required_api
+from hellofamilyclub.utils.decorators import admin_required_api_normal
+from hellofamilyclub.utils.utils import download_picture
 from hellofamilyclub.utils.utils import page_limit_skip
-from hellofamilyclub.utils.decorators import admin_required, admin_required_api_normal
-
+from pictures.tasks import recognize_picture
+from .models import Group, Member, CarouselPicture
+from .pagination import ListPagination
+from .serializers import GroupSerializer, MemberSerializer, \
+    CarouselPictureSerializer, \
+    MemberCreateSerializer
+from .service.config import mongo_db
 
 APP_ID = settings.APP_ID
 API_KEY = settings.API_KEY
 SECRET_KEY = settings.SECRET_KEY
 client = AipFace(APP_ID, API_KEY, SECRET_KEY)
-
-
-"""
-后端渲染页面
-"""
-
-
-class BaseView(View):
-    @staticmethod
-    def get_context_data(request):
-        if request.user.is_authenticated:
-            sidebars = SideBar.get_all().filter(owner=request.user)
-        else:
-            sidebars = SideBar.objects.none()
-        members = Member.objects.filter().only('id', 'name_jp')
-        groups = Group.objects.filter().only('id', 'name_jp')
-        groups_nav = Group.get_all(status=Group.STATUS_NORMAL).only(
-            'id', 'name_jp')
-        return {'groups': groups, 'sidebars': sidebars, 'members': members,
-                'groups_nav': groups_nav}
-
-
-class GroupProfile(BaseView):
-    """
-    显示Hello！Project所有组合，时间线
-    """
-    def get(self, request):
-        groups = Group.objects.filter().order_by('created_time')
-        context = {
-            'groups_ordered': groups
-        }
-        context.update(self.get_context_data(request))
-        return render(request, 'pictures/profile.html', context=context)
-
-
-class MemberFace(BaseView):
-    @method_decorator(admin_required)
-    def get(self, request):
-        form = MemberForm
-        context = {
-            'form': form,
-        }
-        context.update(self.get_context_data(request))
-        return render(request, 'pictures/add.html', context=context)
-
-
-class MemberFaceIndex(BaseView):
-    def get(self, request):
-        page = request.GET.get('page')
-        limit = request.GET.get('limit')
-        limit, skip = page_limit_skip(page, limit)
-        images = list(mongo_db['images'].find().sort('created_time', -1).
-                      limit(limit).skip(skip))
-        count = mongo_db['images'].count()
-        context = {
-            'images': images,
-            'current': page,
-            'limit': limit,
-            'count': count,
-        }
-        context.update(self.get_context_data(request))
-        return render(request, 'pictures/index.html', context=context)
-
-
-"""
-Restful API
-"""
 
 
 class CookieAPI(APIView):
@@ -126,7 +67,7 @@ class MemberFaceList(APIView):
         member_1 = int(query['member_first'])
         member_2 = int(query['member_second'])
         query = {'$or': [{'members.1.id': member_1, 'members.0.id': member_2},
-                 {'members.1.id': member_2, 'members.0.id': member_1}],
+                         {'members.1.id': member_2, 'members.0.id': member_1}],
                  'size': 2}
         return query
 
@@ -134,20 +75,24 @@ class MemberFaceList(APIView):
         page = request.GET.get('page', 1)
         limit = request.GET.get('limit')
         if request.GET.get("group_second"):
-            if request.GET.get('member_second') and int(request.GET['member_second']):
+            if request.GET.get('member_second') and int(
+                    request.GET['member_second']):
                 query = self.double_member(request.GET)
             else:
                 try:
-                    group = Group.objects.get(id=int(request.GET["group_second"]))
+                    group = Group.objects.get(
+                        id=int(request.GET["group_second"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
         elif request.GET.get("group_first"):
-            if request.GET.get('member_first') and int(request.GET['member_first']):
+            if request.GET.get('member_first') and int(
+                    request.GET['member_first']):
                 query = self.single_member(request.GET)
             else:
                 try:
-                    group = Group.objects.get(id=int(request.GET["group_first"]))
+                    group = Group.objects.get(
+                        id=int(request.GET["group_first"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
@@ -176,20 +121,24 @@ class MemberFaceListDate(MemberFaceList):
         page = request.GET.get('page')
         limit = request.GET.get('limit')
         if request.GET.get("group_second"):
-            if request.GET.get('member_second') and int(request.GET['member_second']):
+            if request.GET.get('member_second') and int(
+                    request.GET['member_second']):
                 query = self.double_member(request.GET)
             else:
                 try:
-                    group = Group.objects.get(id=int(request.GET["group_second"]))
+                    group = Group.objects.get(
+                        id=int(request.GET["group_second"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
         elif request.GET.get("group_first"):
-            if request.GET.get('member_first') and int(request.GET['member_first']):
+            if request.GET.get('member_first') and int(
+                    request.GET['member_first']):
                 query = self.single_member(request.GET)
             else:
                 try:
-                    group = Group.objects.get(id=int(request.GET["group_first"]))
+                    group = Group.objects.get(
+                        id=int(request.GET["group_first"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
@@ -268,3 +217,154 @@ class MemberFaceAPI(APIView):
         faces = client.faceGetlist(user_id=user_id, group_id=self.groupId)
 
         return Response({'status': '200', 'data': {'faces': faces}})
+
+
+class CarouselPictureViewSet(viewsets.ModelViewSet):
+    serializer_class = CarouselPictureSerializer
+    queryset = CarouselPicture.objects.filter()
+    pagination_class = ListPagination
+
+    @admin_required_api(message='你没有权限添加图片')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限修改图片')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限删除图片')
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = CarouselPicture.STATUS_DELETE
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
+    pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        params = {}
+
+        if query_params.get('name_jp'):
+            params['name_jp__contains'] = query_params['name_jp']
+        if query_params.get('name_en'):
+            params['name_en__contains'] = query_params['name_en']
+        if query_params.get('start_date'):
+            params['created_time__range'] = (
+                datetime.strptime(query_params['start_date'],
+                                  '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'],
+                                  '%Y-%m-%d %H:%M:%S'))
+
+        new_queryset = self.queryset.filter(**params)
+
+        if query_params.get('order'):
+            new_queryset = new_queryset.order_by(query_params['order'])
+
+        return new_queryset
+
+    @admin_required_api(message='你没有权限添加组合')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限修改组合信息')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限删除组合')
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = Group.STATUS_DISBAND
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MemberViewSet(viewsets.ModelViewSet):
+    # TODO 后续需要在添加或修改成员信息的时候，重新注册一下人脸
+    serializer_class = MemberSerializer
+    queryset = Member.objects.all().order_by('-status', 'joined_time')
+    pagination_class = ListPagination
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+
+        params = {}
+        param_args = []
+        if query_params.get('group_id'):
+            params['group_id'] = query_params['group_id']
+        if query_params.get('group'):
+            param_args.append(Q(group__name_en__contains=query_params['group'])
+                              | Q(
+                group__name_jp__contains=query_params['group']))
+        if query_params.get('name_jp'):
+            params['name_jp__contains'] = query_params['name_jp']
+        if query_params.get('name_en'):
+            params['name_en__contains'] = query_params['name_en']
+        if query_params.get('start_date'):
+            params['joined_time__range'] = (
+                datetime.strptime(query_params['start_date'],
+                                  '%Y-%m-%d %H:%M:%S'),
+                datetime.strptime(query_params['end_date'],
+                                  '%Y-%m-%d %H:%M:%S'))
+
+        new_queryset = self.queryset.filter(*param_args, **params)
+        return new_queryset
+
+    @admin_required_api(message='你没有权限添加成员')
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = MemberCreateSerializer
+        return super().create(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限修改成员信息')
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = MemberCreateSerializer
+        return super().update(request, *args, **kwargs)
+
+    @admin_required_api(message='你没有权限删除成员')
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = Member.STATUS_GRADUATED
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RecognizePicture(APIView):
+    """
+    主动请求识别人脸
+    """
+    authentication_classes = (authentication.JWTAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        picture_name = request.data.get('pictureName')
+        current_user = self.request.user
+
+        recognize_picture.delay(current_user.id, picture_name)
+
+        return Response({'data': 'success'}, status=status.HTTP_200_OK)
+
+
+class DownloadPictures(APIView):
+    authentication_classes = (authentication.JWTAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        picture_list = request.data.get('picture_list')
+        zip_file = BytesIO()
+        with zipfile.ZipFile(zip_file, 'a') as f:
+            for picture in picture_list:
+                pic = download_picture(picture['url'], save=False)
+                f.writestr(picture['name'], BytesIO(pic).getvalue())
+
+        zip_file.seek(0)
+        response = HttpResponse(zip_file.getvalue(),
+                                content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=图片.zip'
+        return response

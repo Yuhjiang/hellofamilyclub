@@ -13,52 +13,47 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework.routers import DefaultRouter
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
-from pictures.views import MemberFaceAPI, MemberFace, MemberFaceIndex, \
-    MemberFaceList, GroupProfile, MemberFaceListDate, CookieAPI
-from pictures.apis import CarouselPictureViewSet, GroupViewSet, MemberViewSet, RecognizePicture, DownloadPictures
-from pictures.autocomplete import MemberAutoComplete
-from user.apis import login_user, register_user, UserViewSet
-from blog.apis import PostViewSet, CategoryViewSet, TagViewSet, upload_picture, CommentViewSet
-from news.apis import NewsTypeViewSet, HelloNewsViewSet
-from album.apis import AlbumViewSet, PictureViewSet
+from user.views import login_user, register_user
 
-router = DefaultRouter()
-router.register(r'post', PostViewSet, basename='api-post')
-router.register(r'category', CategoryViewSet, basename='api-category')
-router.register(r'tag', TagViewSet, basename='api-tag')
-router.register(r'user', UserViewSet, basename='api-user')
-router.register(r'carousel', CarouselPictureViewSet, basename='api-carousel')
-router.register(r'group', GroupViewSet, basename='api-group')
-router.register(r'member', MemberViewSet, basename='api-member')
-router.register(r'comment', CommentViewSet, basename='api-comment')
-router.register(r'newstype', NewsTypeViewSet, basename='api-news-type')
-router.register(r'hellonews', HelloNewsViewSet, basename='api-hello-news')
-router.register(r'album', AlbumViewSet, basename='api-album')
-router.register(r'picture', PictureViewSet, basename='api-picture')
 
 urlpatterns = [
-    path('api/recognize_picture/', RecognizePicture.as_view(), name='recognize-picture'),
-    path('api/download_pictures/', DownloadPictures.as_view(), name='download-picuturs'),
-    path('api/upload_picture', upload_picture, name='upload-picture'),
-    path('api/', include(router.urls)),
+    path('album/', include('album.urls')),
+    path('post/', include('blog.urls')),
+    path('news/', include('news.urls')),
+    path('pictures/', include('pictures.urls')),
+    path('user/', include('user.urls')),
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
     path('api/login', login_user, name='login-user'),
     path('api/register', register_user, name='register-user'),
-    path('api/cookie', CookieAPI.as_view(), name='cookie'),
-    path('api/pictures/timeline/', MemberFaceListDate.as_view(),
-         name='faces-list-timeline'),
-    path('groups/timeline/', GroupProfile.as_view(), name='groups-timeline'),
-    path('api/pictures', MemberFaceList.as_view(), name='faces-list'),
-    path('', MemberFaceIndex.as_view(), name='faces'),
-    path('face/add/', MemberFace.as_view(), name='add-face'),
-    path('member-autocomplete/', MemberAutoComplete.as_view(),
-         name='member-autocomplete'),
-    path('api/face', MemberFaceAPI.as_view(), name='member-face'),
-    path('admin/', admin.site.urls),
+]
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Snippets API",
+      default_version='v1',
+      description="Test description",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@snippets.local"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
+
+if settings.DEBUG:
+    urlpatterns.append(
+        path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
+             name='schema-swagger-ui'),
+    )
+
+urlpatterns = [
+    path('api/v1/', include(urlpatterns)),
 ]

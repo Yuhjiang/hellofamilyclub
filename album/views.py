@@ -1,28 +1,27 @@
-import os
-import sys
-from datetime import datetime
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 
-import django
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-profile = os.environ.get('HELLOFAMILYCLUB', 'develop')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE',
-                      'hellofamilyclub.settings.{}'.format(profile))
-django.setup()
-
-from user.models import HelloUser
-from album.models import Album
+from album.models import Album, Picture
+from album.serializers import AlbumSerializer, PictureSerializer
+from album.pagination import LimitOffsetPagination
 
 
-def init_album():
-    """
-    初始化相册
-    :return:
-    """
-    users = HelloUser.objects.all()
-    for user in users:
-        album = Album(owner_id=user.id, updated_time=datetime.now())
-        album.save()
+class CreateMixin:
+    def create(self, request, *args, **kwargs):
+        query_dict = request.data.copy()
+        query_dict['owner'] = request.user.id
+        serializer = self.get_serializer(data=query_dict)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-if __name__ == '__main__':
-    init_album()
+class AlbumViewSet(CreateMixin, viewsets.ModelViewSet):
+    serializer_class = AlbumSerializer
+    queryset = Album.objects.all()
+
+
+class PictureViewSet(viewsets.ModelViewSet):
+    serializer_class = PictureSerializer
+    queryset = Picture.objects.all()
