@@ -13,9 +13,8 @@ from blog.serializers import PostListSerializer, PostDetailSerializer, CategoryS
     TagSerializer, PostCreateSerializer, CategoryUpdateSerializer, PostUpdateSerializer, \
     CommentListSerializer, CommentCreateSerializer
 from blog.pagination import ListPagination
-from hellofamilyclub.utils.decorators import login_required, login_required_api, admin_required_api,\
-    same_user_required_api
-from hellofamilyclub.utils.websocket import send_message
+from utils.decorators import login_required, login_required_api, same_user_required_api
+from utils.websocket import send_message
 
 
 class CreateMixin:

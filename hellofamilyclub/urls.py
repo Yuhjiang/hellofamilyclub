@@ -21,8 +21,6 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from user.views import login_user, register_user
-
 
 urlpatterns = [
     path('album/', include('album.urls')),
@@ -31,8 +29,6 @@ urlpatterns = [
     path('pictures/', include('pictures.urls')),
     path('user/', include('user.urls')),
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
-    path('api/login', login_user, name='login-user'),
-    path('api/register', register_user, name='register-user'),
 ]
 
 schema_view = get_schema_view(

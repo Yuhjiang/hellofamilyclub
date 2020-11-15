@@ -16,10 +16,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt import authentication
 from rest_framework.permissions import IsAdminUser
 
-from hellofamilyclub.utils.decorators import admin_required_api
-from hellofamilyclub.utils.decorators import admin_required_api_normal
-from hellofamilyclub.utils.utils import download_picture, page_limit_skip
-from hellofamilyclub.utils.core.exceptions import HelloFamilyException
+from utils.decorators import admin_required_api
+from utils.decorators import admin_required_api_normal
+from utils.utils import download_picture, page_limit_skip
+from utils.core.exceptions import HelloFamilyException
 from pictures.tasks import recognize_picture
 from .models import Group, Member, CarouselPicture
 from .pagination import ListPagination

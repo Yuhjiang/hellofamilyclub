@@ -4,7 +4,7 @@ from .models import NewsType, HelloNews
 from .serializers import NewsTypeSerializer, HelloNewsSerializer, NewsTypeSerializerList, \
     HelloNewsSerializerEdit
 from .pagination import ListPagination
-from hellofamilyclub.utils.decorators import admin_required_api, login_required_api
+from utils.decorators import admin_required_api
 
 
 class NewsTypeViewSet(viewsets.ModelViewSet):

@@ -11,7 +11,7 @@ from datetime import datetime
 import django
 
 from pictures.service.config import headers, image_url, IMAGE_DIR, mongo_db
-from hellofamilyclub.utils.utils import download_picture
+from utils import download_picture
 from pictures.tasks import send_recognize_mail as send_mail
 
 django.setup()

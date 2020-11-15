@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import pytest
 from rest_framework.test import APIClient
@@ -50,12 +50,39 @@ class BaseViewTest:
         }
 
 
+def add_permission(basic: List[Tuple[str, int]], add: Tuple[str, int]):
+    basic = basic.copy()
+    basic.append(add)
+
+    return basic
+
+
 class AdminPermission:
-    read_only = pytest.mark.parametrize(
+    base_permission = [
+        (BaseUser.anonymous, status.HTTP_401_UNAUTHORIZED),
+        (BaseUser.normal, status.HTTP_403_FORBIDDEN),
+    ]
+
+    read_permission = pytest.mark.parametrize(
         'user, expect_code',
-        [
-            (BaseUser.anonymous, status.HTTP_401_UNAUTHORIZED),
-            (BaseUser.admin, status.HTTP_200_OK),
-            (BaseUser.normal, status.HTTP_403_FORBIDDEN),
-        ]
+        add_permission(base_permission,
+                       (BaseUser.admin, status.HTTP_200_OK))
+    )
+
+    create_permission = pytest.mark.parametrize(
+        'user, expect_code',
+        add_permission(base_permission,
+                       (BaseUser.admin, status.HTTP_201_CREATED))
+    )
+
+    delete_permission = pytest.mark.parametrize(
+        'user, expect_code',
+        add_permission(base_permission,
+                       (BaseUser.admin, status.HTTP_204_NO_CONTENT))
+    )
+
+    update_permission = pytest.mark.parametrize(
+        'user, expect_code',
+        add_permission(base_permission,
+                       (BaseUser.admin, status.HTTP_200_OK))
     )

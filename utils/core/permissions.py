@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 from user.models import HelloUser
-from hellofamilyclub.utils.core.exceptions import HelloFamilyException
+from utils.core import HelloFamilyException
 
 
 def is_same_user(instance, current_user):

@@ -4,7 +4,7 @@ from celery import shared_task
 
 from pictures.service.recognize import recognize_multi
 from pictures.service.config import mongo_db
-from hellofamilyclub.utils.websocket import send_message
+from utils.websocket import send_message
 
 
 @shared_task()

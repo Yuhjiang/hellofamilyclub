@@ -1,7 +1,7 @@
 import pytest
 
 from user.models import HelloUser, Role
-from hellofamilyclub.utils.base_test import BaseUser
+from utils.base_test import BaseUser
 
 
 @pytest.fixture(scope='session')

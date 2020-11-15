@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 
 
-from hellofamilyclub.utils.core.filters import BaseFilters
+from utils.core.filters import BaseFilters
 from user.models import HelloUser
 
 
