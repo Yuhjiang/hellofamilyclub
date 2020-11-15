@@ -14,11 +14,12 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt import authentication
+from rest_framework.permissions import IsAdminUser
 
 from hellofamilyclub.utils.decorators import admin_required_api
 from hellofamilyclub.utils.decorators import admin_required_api_normal
-from hellofamilyclub.utils.utils import download_picture
-from hellofamilyclub.utils.utils import page_limit_skip
+from hellofamilyclub.utils.utils import download_picture, page_limit_skip
+from hellofamilyclub.utils.core.exceptions import HelloFamilyException
 from pictures.tasks import recognize_picture
 from .models import Group, Member, CarouselPicture
 from .pagination import ListPagination
@@ -34,7 +35,8 @@ client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 
 
 class CookieAPI(APIView):
-    @method_decorator(admin_required_api_normal)
+    permission_classes = (IsAdminUser, )
+
     def post(self, request):
         body = json.loads(request.body)
         if body.get('cookie'):
@@ -44,13 +46,9 @@ class CookieAPI(APIView):
                 'update_time': current_time,
             })
             if result.acknowledged:
-                return Response({'status': 200, 'errMsg': '', 'data': {
-                    'message': '成功更新Cookie'
-                }})
-            else:
-                return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
-        else:
-            return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
+                return Response({'errMsg': '',
+                                 'data': {'message': '成功更新Cookie'}})
+        raise HelloFamilyException(HelloFamilyException.COOKIE_UPDATE_ERROR)
 
 
 class MemberFaceList(APIView):

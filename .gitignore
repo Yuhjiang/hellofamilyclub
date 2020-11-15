@@ -10,3 +10,7 @@
 /news/migrations/
 /.qiniu_pythonsdk_hostscache.json
 /album/migrations/
+*/migrations/[0-9]*_*.py
+*.py[cd]
+.pytest_cache
+.coverage

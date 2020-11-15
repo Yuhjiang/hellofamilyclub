@@ -4,14 +4,15 @@ from datetime import datetime
 from django.contrib import auth
 
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAdminUser
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import HelloUser
-from .serializers import UserSerializer
-from .pagination import ListPagination
+from user.models import HelloUser
+from user.serializers import UserSerializer
 from album.models import Album
+from user.filters import UserFilter
 from hellofamilyclub.utils.decorators import admin_required_api, same_user_required_api
 
 
@@ -66,21 +67,8 @@ def register_user(request):
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = HelloUser.objects.filter()
-    pagination_class = ListPagination
-
-    def get_queryset(self):
-        query_params = self.request.query_params
-        params = {}
-
-        if query_params.get('username'):
-            params['username__contains'] = query_params['username']
-        if query_params.get('nickname'):
-            params['nickname__contains'] = query_params['nickname']
-        if query_params.get('email'):
-            params['email__contains'] = query_params['email']
-
-        new_queryset = self.queryset.filter(**params)
-        return new_queryset
+    permission_classes = [IsAdminUser, ]
+    filterset_class = UserFilter
 
     @admin_required_api
     def create(self, request, *args, **kwargs):

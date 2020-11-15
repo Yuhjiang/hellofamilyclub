@@ -1,0 +1,9 @@
+[report]
+show_missing = True
+omit =
+    */migrations/*
+    *__init__*
+    *admin*
+    *apps*
+    *test*
+    *log_consumer*
