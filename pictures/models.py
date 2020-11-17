@@ -112,3 +112,9 @@ class CarouselPicture(models.Model):
     @property
     def current_images(self):
         return self.objects.filter(status=self.STATUS_NORMAL)
+
+
+class Face(object):
+    def __init__(self, face_token, ctime):
+        self.face_token = face_token
+        self.ctime = ctime

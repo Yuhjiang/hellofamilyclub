@@ -9,6 +9,8 @@ from django.conf import settings
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from rest_framework import status
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
@@ -21,11 +23,11 @@ from utils.decorators import admin_required_api_normal
 from utils.utils import download_picture, page_limit_skip
 from utils.core.exceptions import HelloFamilyException
 from pictures.tasks import recognize_picture
-from .models import Group, Member, CarouselPicture
-from .pagination import ListPagination
-from .serializers import GroupSerializer, MemberSerializer, \
-    CarouselPictureSerializer, \
-    MemberCreateSerializer
+from pictures.models import Group, Member, CarouselPicture
+from pictures.pagination import ListPagination
+from pictures.serializers import GroupSerializer, MemberSerializer, \
+    CarouselPictureSerializer, MemberCreateSerializer, CookieSerializer, \
+    MemberFaceSerializer, MemberFaceResultSerializer
 from .service.config import mongo_db
 
 APP_ID = settings.APP_ID
@@ -37,18 +39,21 @@ client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 class CookieAPI(APIView):
     permission_classes = (IsAdminUser, )
 
+    @method_decorator(swagger_auto_schema(
+        request_body=CookieSerializer(),
+        operation_summary='更新Cookie',
+        responses={'200': 'No Content'}
+    ))
     def post(self, request):
-        body = json.loads(request.body)
-        if body.get('cookie'):
-            current_time = datetime.now()
-            result = mongo_db['cookie'].insert_one({
-                'cookie': body['cookie'],
-                'update_time': current_time,
-            })
-            if result.acknowledged:
-                return Response({'errMsg': '',
-                                 'data': {'message': '成功更新Cookie'}})
-        raise HelloFamilyException(HelloFamilyException.COOKIE_UPDATE_ERROR)
+        serializer = CookieSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        current_time = datetime.now()
+        result = mongo_db['cookie'].insert_one({
+            'cookie': data['cookie'],
+            'update_time': current_time,
+        })
+        return Response(status=status.HTTP_200_OK)
 
 
 class MemberFaceList(APIView):
@@ -173,7 +178,6 @@ class MemberFaceListDate(MemberFaceList):
 class MemberFaceAPI(APIView):
     groupId = 'Hello_Project'
 
-    @method_decorator(admin_required_api_normal)
     def post(self, request):
         """
         注册人脸
@@ -199,6 +203,12 @@ class MemberFaceAPI(APIView):
 
         return Response({'status': '200', 'errMsg': result['error_msg']})
 
+    @method_decorator(swagger_auto_schema(
+        query_serializer=MemberFaceSerializer(),
+        operation_summary='获取百度人脸库里的信息',
+        responses={'200': openapi.Response('人脸库返回的列表',
+                                           MemberFaceResultSerializer())}
+    ))
     def get(self, request):
         """
         获取人脸
@@ -213,8 +223,10 @@ class MemberFaceAPI(APIView):
         user_id = member.name_en
 
         faces = client.faceGetlist(user_id=user_id, group_id=self.groupId)
-
-        return Response({'status': '200', 'data': {'faces': faces}})
+        serializer = MemberFaceResultSerializer(data=faces)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        return Response(data)
 
 
 class CarouselPictureViewSet(viewsets.ModelViewSet):

@@ -15,7 +15,6 @@ urlpatterns: List = router.urls
 
 urlpatterns.extend(
     [
-        path('', views.MemberFaceList.as_view(), name='picture-list'),
         path('recognize/', views.RecognizePicture.as_view(),
              name='recognize-picture'),
         path('download/', views.DownloadPictures.as_view(),
@@ -24,5 +23,6 @@ urlpatterns.extend(
         path('timeline/', views.MemberFaceListDate.as_view(),
              name='picture-list-timeline'),
         path('face/', views.MemberFaceAPI.as_view(), name='member-face'),
+        path('', views.MemberFaceList.as_view(), name='picture-list'),
     ]
 )

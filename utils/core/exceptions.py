@@ -14,7 +14,7 @@ class ErrorCode:
         USERNAME_NOT_EXIST: '用户不存在',
         USER_HAS_BEEN_BANNED: '用户已经被禁用',
 
-        COOKIE_UPDATE_ERROR: 'Cookie更新失败',
+        COOKIE_UPDATE_ERROR: 'Cookie更新失败，请重新输入Cookie',
     }
 
 
