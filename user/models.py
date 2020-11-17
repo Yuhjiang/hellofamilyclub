@@ -49,8 +49,8 @@ class HelloUser(AbstractUser):
     last_login = models.DateTimeField(null=True, verbose_name='上次登录时间')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     birthday = models.DateField(default='1970-01-01', verbose_name='生日')
-    is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False, verbose_name='管理员')
+    is_active = models.BooleanField(default=True, verbose_name='启用状态')
 
     objects = HelloUserManager()
 

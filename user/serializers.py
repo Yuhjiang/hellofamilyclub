@@ -21,7 +21,7 @@ password_validator = RegexValidator(
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
-    phone = serializers.CharField(allow_blank=True)
+    phone = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
         model = HelloUser

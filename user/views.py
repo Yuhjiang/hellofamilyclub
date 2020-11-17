@@ -2,19 +2,18 @@ from datetime import datetime
 
 from django.contrib import auth
 from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, mixins
-from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from drf_yasg.utils import swagger_auto_schema
 
 from user.filters import UserFilter
 from user.models import HelloUser
 from user.serializers import UserSerializer, RegisterSerializer, \
-    LoginSerializer, \
-    LoginResponseSerializer
+    LoginSerializer, LoginResponseSerializer
 
 
 class UserViewSet(mixins.RetrieveModelMixin,
@@ -64,4 +63,3 @@ class LoginUser(GenericAPIView):
             'refreshToken': str(token),
             'login_time': datetime.now()
         }, status=status.HTTP_200_OK)
-
