@@ -21,13 +21,13 @@ from rest_framework.permissions import IsAdminUser
 from utils.decorators import admin_required_api
 from utils.decorators import admin_required_api_normal
 from utils.utils import download_picture, page_limit_skip
-from utils.core.exceptions import HelloFamilyException
+from utils.core.exceptions import HelloFamilyException, ErrorCode
 from pictures.tasks import recognize_picture
 from pictures.models import Group, Member, CarouselPicture
 from pictures.pagination import ListPagination
 from pictures.serializers import GroupSerializer, MemberSerializer, \
     CarouselPictureSerializer, MemberCreateSerializer, CookieSerializer, \
-    MemberFaceSerializer, MemberFaceResultSerializer
+    MemberFaceSerializer, MemberFaceResultSerializer, FaceRegisterSerializer
 from .service.config import mongo_db
 
 APP_ID = settings.APP_ID
@@ -178,30 +178,32 @@ class MemberFaceListDate(MemberFaceList):
 class MemberFaceAPI(APIView):
     groupId = 'Hello_Project'
 
+    @method_decorator(swagger_auto_schema(
+        operation_summary='注册人脸',
+        request_body=FaceRegisterSerializer,
+        responses={
+            '200': 'No content',
+            '499': 'error'
+        }
+    ))
     def post(self, request):
-        """
-        注册人脸
-        :param request:
-        :return:
-        """
-        body = request.POST
+        serializer = FaceRegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
         try:
-            member = Member.objects.get(id=body.get('member'))
+            member = Member.objects.get(id=data['member'])
         except Member.DoesNotExist:
-            return Response({'status': '500', 'errMsg': '未找到成员'})
-        user_id = member.name_en
-        if body.get('image_url'):
-            image = body['image_url']
-            image_type = 'URL'
-        else:
-            # 前端传输文件，经过base64编码后向百度云注册
-            file = request.FILES['files[]'].read()
-            image = base64.b64encode(file).decode('utf-8')
-            image_type = 'BASE64'
-        result = client.addUser(image=image, image_type=image_type,
-                                group_id=self.groupId, user_id=user_id)
+            raise HelloFamilyException(ErrorCode.MEMBER_NOT_EXISTS)
 
-        return Response({'status': '200', 'errMsg': result['error_msg']})
+        file = request.FILES['image'].read()
+        image = base64.b64encode(file).decode('utf-8')
+        image_type = 'BASE64'
+
+        result = client.addUser(image=image, image_type=image_type,
+                                group_id=self.groupId, user_id=member.name_en)
+        if result['error_msg'] == 'SUCCESS':
+            return Response(status=status.HTTP_200_OK)
+        raise HelloFamilyException(ErrorCode.FACE_REGISTER_FAIL)
 
     @method_decorator(swagger_auto_schema(
         query_serializer=MemberFaceSerializer(),
@@ -210,19 +212,15 @@ class MemberFaceAPI(APIView):
                                            MemberFaceResultSerializer())}
     ))
     def get(self, request):
-        """
-        获取人脸
-        :param request:
-        :return:
-        """
         query = request.GET
         try:
             member = Member.objects.get(id=query.get('member'))
         except Member.DoesNotExist:
-            return Response({'status': '500', 'errMsg': '未找到成员'})
+            raise HelloFamilyException(ErrorCode.MEMBER_NOT_EXISTS)
         user_id = member.name_en
 
         faces = client.faceGetlist(user_id=user_id, group_id=self.groupId)
+        faces['user_id'] = user_id
         serializer = MemberFaceResultSerializer(data=faces)
         serializer.is_valid(raise_exception=True)
         data = serializer.data

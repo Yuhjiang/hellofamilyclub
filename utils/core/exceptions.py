@@ -8,6 +8,8 @@ class ErrorCode:
 
     # 图片库相关相关报错
     COOKIE_UPDATE_ERROR = 2001
+    MEMBER_NOT_EXISTS = 2002
+    FACE_REGISTER_FAIL = 2003
 
     MESSAGE_MAP = {
         SAME_USER_REQUIRED: '你没有权限进行此操作',
@@ -15,6 +17,8 @@ class ErrorCode:
         USER_HAS_BEEN_BANNED: '用户已经被禁用',
 
         COOKIE_UPDATE_ERROR: 'Cookie更新失败，请重新输入Cookie',
+        MEMBER_NOT_EXISTS: '此成员不存在',
+        FACE_REGISTER_FAIL: '人脸注册失败',
     }
 
 

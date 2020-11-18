@@ -2,6 +2,7 @@
 早安家族人脸识别模块，调用百度aip
 """
 from django.db import models
+from django.conf import settings
 
 
 class Group(models.Model):
@@ -115,6 +116,10 @@ class CarouselPicture(models.Model):
 
 
 class Face(object):
-    def __init__(self, face_token, ctime):
+    def __init__(self, face_token=None, ctime=None, user_id=None):
         self.face_token = face_token
         self.ctime = ctime
+        self.face_url = settings.BAIDU_FACE.format(
+            uid=user_id, face_id=face_token
+        )
+

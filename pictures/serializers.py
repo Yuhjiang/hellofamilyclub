@@ -75,6 +75,7 @@ class MemberFaceSerializer(serializers.ModelSerializer):
 class FaceSerializer(BasicSerializer):
     face_token = serializers.CharField(label='人脸唯一标示，可以通过token获取到人脸照片')
     ctime = serializers.DateTimeField(label='注册时间', format='%Y-%m-%d %H:%M:%S')
+    face_url = serializers.CharField(label='人脸照片URL')
 
 
 class MemberFaceResultSerializer(BasicSerializer):
@@ -114,7 +115,17 @@ class MemberFaceResultSerializer(BasicSerializer):
         result = data['result']
         face_list = result['face_list']
         for i in range(len(face_list)):
-            face_list[i] = Face(**face_list[i])
+            d = dict(
+                face_token=face_list[i]['face_token'],
+                ctime=face_list[i]['ctime'],
+                user_id=data['user_id']
+            )
+            face_list[i] = Face(**d)
 
         return result
+
+
+class FaceRegisterSerializer(BasicSerializer):
+    image = serializers.ImageField(label='图片', use_url=False)
+    member = serializers.IntegerField(label='成员id')
 
