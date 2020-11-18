@@ -46,6 +46,12 @@ class MemberCreateSerializer(serializers.ModelSerializer):
 
 
 class CarouselPictureSerializer(serializers.ModelSerializer):
+    status = serializers.ChoiceField(
+        choices=CarouselPicture.STATUS_ITEMS,
+        help_text=(str(CarouselPicture.STATUS_ITEMS)),
+        required=False,
+    )
+
     class Meta:
         model = CarouselPicture
         fields = ['id', 'name', 'image', 'status', 'created_time']
@@ -126,6 +132,6 @@ class MemberFaceResultSerializer(BasicSerializer):
 
 
 class FaceRegisterSerializer(BasicSerializer):
-    image = serializers.ImageField(label='图片', use_url=False)
+    image = serializers.CharField(label='图片，需要放进formdata里')
     member = serializers.IntegerField(label='成员id')
 

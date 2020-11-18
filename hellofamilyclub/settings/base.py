@@ -63,6 +63,7 @@ REST_FRAMEWORK = {
         'utils.core.pagination.BasicPagination',
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter'
     ]
 }
 

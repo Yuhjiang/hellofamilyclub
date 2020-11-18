@@ -19,16 +19,16 @@ from rest_framework_simplejwt import authentication
 from rest_framework.permissions import IsAdminUser
 
 from utils.decorators import admin_required_api
-from utils.decorators import admin_required_api_normal
 from utils.utils import download_picture, page_limit_skip
 from utils.core.exceptions import HelloFamilyException, ErrorCode
 from pictures.tasks import recognize_picture
 from pictures.models import Group, Member, CarouselPicture
+from pictures.filters import CarouselFilter, GroupFilter
 from pictures.pagination import ListPagination
 from pictures.serializers import GroupSerializer, MemberSerializer, \
     CarouselPictureSerializer, MemberCreateSerializer, CookieSerializer, \
     MemberFaceSerializer, MemberFaceResultSerializer, FaceRegisterSerializer
-from .service.config import mongo_db
+from pictures.service.config import mongo_db
 
 APP_ID = settings.APP_ID
 API_KEY = settings.API_KEY
@@ -187,9 +187,7 @@ class MemberFaceAPI(APIView):
         }
     ))
     def post(self, request):
-        serializer = FaceRegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.data
+        data = request.data
         try:
             member = Member.objects.get(id=data['member'])
         except Member.DoesNotExist:
@@ -230,17 +228,9 @@ class MemberFaceAPI(APIView):
 class CarouselPictureViewSet(viewsets.ModelViewSet):
     serializer_class = CarouselPictureSerializer
     queryset = CarouselPicture.objects.filter()
-    pagination_class = ListPagination
+    permission_classes = (IsAdminUser, )
+    filter_class = CarouselFilter
 
-    @admin_required_api(message='你没有权限添加图片')
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @admin_required_api(message='你没有权限修改图片')
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @admin_required_api(message='你没有权限删除图片')
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.status = CarouselPicture.STATUS_DELETE
@@ -253,38 +243,9 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
     pagination_class = ListPagination
+    filter_class = GroupFilter
+    ordering_fields = ['id', 'created_time']
 
-    def get_queryset(self):
-        query_params = self.request.query_params
-        params = {}
-
-        if query_params.get('name_jp'):
-            params['name_jp__contains'] = query_params['name_jp']
-        if query_params.get('name_en'):
-            params['name_en__contains'] = query_params['name_en']
-        if query_params.get('start_date'):
-            params['created_time__range'] = (
-                datetime.strptime(query_params['start_date'],
-                                  '%Y-%m-%d %H:%M:%S'),
-                datetime.strptime(query_params['end_date'],
-                                  '%Y-%m-%d %H:%M:%S'))
-
-        new_queryset = self.queryset.filter(**params)
-
-        if query_params.get('order'):
-            new_queryset = new_queryset.order_by(query_params['order'])
-
-        return new_queryset
-
-    @admin_required_api(message='你没有权限添加组合')
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @admin_required_api(message='你没有权限修改组合信息')
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @admin_required_api(message='你没有权限删除组合')
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.status = Group.STATUS_DISBAND
