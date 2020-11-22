@@ -58,10 +58,11 @@ def recognize_multi(picture: dict, url: str, image_type: str, save=False,
         'max_user_num': 1,
     }
     response = client.multiSearch(image, image_type, group_id_list, options)
-    print(response)
+
+    members = []
     if save and response['error_msg'] == 'SUCCESS':
-        face_to_database(name, response)
-    return True
+        members = face_to_database(name, response)
+    return members
 
 
 def face_to_database(name, response):
@@ -80,9 +81,10 @@ def face_to_database(name, response):
                 })
             except Member.DoesNotExist:
                 logger.error("Not Found {}".format(name_en))
-    members = {'$set': {'members': members, 'size': len(members),
-                        'recognized': True}}
-    mongo_db['images'].update_one({'name': name}, members)
+    members_update = {'$set': {'members': members, 'size': len(members),
+                      'recognized': True}}
+    mongo_db['images'].update_one({'name': name}, members_update)
+    return members
 
 
 def recognize_all_pictures():

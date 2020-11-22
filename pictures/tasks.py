@@ -1,5 +1,6 @@
-from django.core.mail import send_mail
+from typing import List, Dict
 
+from django.core.mail import send_mail
 from celery import shared_task
 
 from pictures.service.recognize import recognize_multi
@@ -18,8 +19,22 @@ def recognize_picture(user_id, picture_name):
     if not picture:
         send_message(user_id, '未找到图片', from_user='admin')
     else:
-        recognize_multi(picture, picture['url'], 'BASE64', save=True, redownload=True)
-        send_message(user_id, '成功更新人脸信息', from_user='admin')
+        members = recognize_multi(picture, picture['url'], 'BASE64', save=True,
+                                  redownload=True)
+        message = member_from_picture(members)
+        send_message(user_id, message, from_user='admin')
+
+
+def member_from_picture(members: List[Dict]) -> str:
+    """
+    将人脸识别得到的成员，组合成weboscket可以推送的信息
+    :param members: [
+    {'id': 16, 'name_en': 'ayano_kawamura', 'name_jp': '川村文乃',
+     'group': 'angerme'}]
+    :return: 成员有: 川村文乃
+    """
+    names = [m['name_jp'] for m in members]
+    return '成功更新人脸信息，成员有:{}'.format(', '.join(names))
 
 
 if __name__ == '__main__':
