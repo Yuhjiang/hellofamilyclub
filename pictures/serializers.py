@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from pictures.models import Group, Member, CarouselPicture, Face
 from utils.core.exceptions import HelloFamilyException
-from utils.core.serializers import BasicSerializer
+from utils.core.serializers import BasicSerializer, BasicResponseSerializer
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -149,3 +149,41 @@ class DownloadPicture(BasicSerializer):
 class DownloadPictureListSerializer(BasicSerializer):
     picture_list = serializers.ListField(
         label='需要下载的图片列表', child=DownloadPicture())
+
+
+class MemberPictureSerializer(BasicSerializer):
+    create_date = serializers.DateTimeField(label='图片日期', format='%Y-%m-%d')
+    create_time = serializers.DateTimeField(label='图片时间')
+    downloaded = serializers.BooleanField(label='是否下载过图片')
+    members = serializers.ListField(child=serializers.DictField())
+    name = serializers.URLField(label='图片名称')
+    recognized = serializers.BooleanField(label='是否识别过图片')
+    size = serializers.IntegerField(label='图片里成员的数量')
+    url = serializers.URLField(label='图片链接')
+
+
+class MemberFaceListSerializer(BasicResponseSerializer):
+    results = serializers.ListField(child=MemberPictureSerializer(),
+                                    label='查询结果')
+
+
+class FaceDateSerializer(BasicSerializer):
+    _id = serializers.CharField()
+    date = serializers.DateTimeField(label='日期')
+    pictures = serializers.ListField(child=MemberPictureSerializer())
+
+
+class MemberFaceDateSerializer(BasicResponseSerializer):
+    results = serializers.ListField(child=FaceDateSerializer())
+
+
+class MemberFaceFilterSerializer(BasicSerializer):
+    member_first = serializers.IntegerField(
+        label='第一个成员ID', allow_null=True, required=False)
+    group_first = serializers.IntegerField(
+        label='第一个成员ID', allow_null=True, required=False)
+    member_second = serializers.IntegerField(
+        label='第二个成员ID', allow_null=True, required=False)
+    group_second = serializers.IntegerField(
+        label='第二个成员ID', allow_null=True, required=False)
+    page = serializers.IntegerField(label='分页', default=True)

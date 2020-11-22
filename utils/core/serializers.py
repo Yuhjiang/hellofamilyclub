@@ -10,5 +10,7 @@ class BasicSerializer(serializers.Serializer):
 
 
 class BasicResponseSerializer(BasicSerializer):
-    error = serializers.IntegerField(label='错误码')
-    detail = serializers.CharField(label='错误信息')
+    count = serializers.IntegerField(label='总数')
+    next = serializers.URLField()
+    previous = serializers.URLField()
+    results = serializers.CharField()

@@ -23,7 +23,8 @@ from pictures.pagination import ListPagination
 from pictures.serializers import GroupSerializer, MemberSerializer, \
     CarouselPictureSerializer, MemberCreateSerializer, CookieSerializer, \
     MemberFaceSerializer, MemberFaceResultSerializer, FaceRegisterSerializer, \
-    FaceRecognizeSerializer, DownloadPictureListSerializer
+    FaceRecognizeSerializer, DownloadPictureListSerializer,\
+    MemberFaceListSerializer, MemberFaceFilterSerializer, MemberFaceDateSerializer
 from pictures.service.config import mongo_db
 from pictures.tasks import recognize_picture
 from utils.core.exceptions import HelloFamilyException, ErrorCode
@@ -58,6 +59,8 @@ class CookieAPI(APIView):
 
 
 class MemberFaceList(APIView):
+    limit = 20
+    
     @staticmethod
     def all_member():
         return {}
@@ -75,80 +78,89 @@ class MemberFaceList(APIView):
                  'size': 2}
         return query
 
+    @method_decorator(swagger_auto_schema(
+        query_serializer=MemberFaceFilterSerializer(),
+        operation_summary='表格显示的成员图片',
+        responses={'200': openapi.Response('成员图片响应',
+                                           MemberFaceListSerializer())}
+    ))
     def get(self, request):
-        page = request.GET.get('page', 1)
-        limit = request.GET.get('limit')
-        if request.GET.get("group_second"):
-            if request.GET.get('member_second') and int(
-                    request.GET['member_second']):
-                query = self.double_member(request.GET)
+        serializer = MemberFaceFilterSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        if data.get("group_second"):
+            if data.get('member_second') and int(
+                    data['member_second']):
+                query = self.double_member(data)
             else:
                 try:
                     group = Group.objects.get(
-                        id=int(request.GET["group_second"]))
+                        id=int(data["group_second"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
-        elif request.GET.get("group_first"):
-            if request.GET.get('member_first') and int(
-                    request.GET['member_first']):
-                query = self.single_member(request.GET)
+        elif data.get("group_first"):
+            if data.get('member_first') and int(
+                    data['member_first']):
+                query = self.single_member(data)
             else:
                 try:
                     group = Group.objects.get(
-                        id=int(request.GET["group_first"]))
+                        id=int(data["group_first"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
         else:
             query = self.all_member()
-        limit, skip = page_limit_skip(page, limit)
+
+        limit, skip = page_limit_skip(data['page'], self.limit)
         images = list(mongo_db['images'].find(query, {'_id': 0}).
                       sort('created_time', -1).limit(limit).skip(skip))
 
         count = mongo_db['images'].count(query)
         result = {
-            'status': 200,
-            'errMsg': '',
-            'data': {
-                'images': images,
-                'current': int(page),
-                'limit': limit,
-                'count': count
-            },
+            'count': count,
+            'results': images,
         }
         return Response(result)
 
 
 class MemberFaceListDate(MemberFaceList):
+    @method_decorator(swagger_auto_schema(
+        query_serializer=MemberFaceFilterSerializer(),
+        operation_summary='表格显示的成员图片',
+        responses={'200': openapi.Response('成员图片响应',
+                                           MemberFaceDateSerializer())}
+    ))
     def get(self, request):
-        page = request.GET.get('page')
-        limit = request.GET.get('limit')
-        if request.GET.get("group_second"):
-            if request.GET.get('member_second') and int(
-                    request.GET['member_second']):
-                query = self.double_member(request.GET)
+        serializer = MemberFaceFilterSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        if data.get("group_second"):
+            if data.get('member_second') and int(
+                    data['member_second']):
+                query = self.double_member(data)
             else:
                 try:
                     group = Group.objects.get(
-                        id=int(request.GET["group_second"]))
+                        id=int(data["group_second"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
-        elif request.GET.get("group_first"):
-            if request.GET.get('member_first') and int(
-                    request.GET['member_first']):
-                query = self.single_member(request.GET)
+        elif data.get("group_first"):
+            if data.get('member_first') and int(
+                    data['member_first']):
+                query = self.single_member(data)
             else:
                 try:
                     group = Group.objects.get(
-                        id=int(request.GET["group_first"]))
+                        id=int(data["group_first"]))
                     query = {"members.group": group.name_en}
                 except Group.DoesNotExist:
                     query = {}
         else:
             query = self.all_member()
-        limit, skip = page_limit_skip(page, limit)
+        limit, skip = page_limit_skip(data['page'], self.limit)
         count = mongo_db['images'].count(query)
         images = list(mongo_db['images'].aggregate([
             {'$match': query},
@@ -165,13 +177,8 @@ class MemberFaceListDate(MemberFaceList):
         for image in images:
             image['date'] = image['_id'].strftime('%Y年%m月%d日')
         result = {
-            "data": {
-                'images': images,
-                'count': count,
-                'limit': limit,
-                'page': page
-            },
-            "status": 200,
+            'count': count,
+            'results': images,
         }
         return Response(result)
 
