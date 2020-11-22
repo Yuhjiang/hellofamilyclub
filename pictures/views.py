@@ -1,5 +1,4 @@
 import base64
-import json
 import zipfile
 from datetime import datetime
 from io import BytesIO
@@ -9,27 +8,28 @@ from django.conf import settings
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
-from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework import viewsets, permissions
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt import authentication
-from rest_framework.permissions import IsAdminUser
 
-from utils.core.mixins import MultiActionConfViewSetMixin
-from utils.decorators import admin_required_api
-from utils.utils import download_picture, page_limit_skip
-from utils.core.exceptions import HelloFamilyException, ErrorCode
-from pictures.tasks import recognize_picture
-from pictures.models import Group, Member, CarouselPicture
 from pictures.filters import CarouselFilter, GroupFilter
+from pictures.models import Group, Member, CarouselPicture
 from pictures.pagination import ListPagination
 from pictures.serializers import GroupSerializer, MemberSerializer, \
     CarouselPictureSerializer, MemberCreateSerializer, CookieSerializer, \
-    MemberFaceSerializer, MemberFaceResultSerializer, FaceRegisterSerializer
+    MemberFaceSerializer, MemberFaceResultSerializer, FaceRegisterSerializer, \
+    FaceRecognizeSerializer, DownloadPictureListSerializer
 from pictures.service.config import mongo_db
+from pictures.tasks import recognize_picture
+from utils.core.exceptions import HelloFamilyException, ErrorCode
+from utils.core.mixins import MultiActionConfViewSetMixin
+from utils.decorators import admin_required_api
+from utils.utils import download_picture, page_limit_skip
 
 APP_ID = settings.APP_ID
 API_KEY = settings.API_KEY
@@ -38,7 +38,7 @@ client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 
 
 class CookieAPI(APIView):
-    permission_classes = (IsAdminUser, )
+    permission_classes = (IsAdminUser,)
 
     @method_decorator(swagger_auto_schema(
         request_body=CookieSerializer(),
@@ -226,12 +226,13 @@ class MemberFaceAPI(APIView):
         return Response(data)
 
 
-class CarouselPictureViewSet(MultiActionConfViewSetMixin, viewsets.ModelViewSet):
+class CarouselPictureViewSet(MultiActionConfViewSetMixin,
+                             viewsets.ModelViewSet):
     serializer_class = CarouselPictureSerializer
     queryset = CarouselPicture.objects.filter()
-    permission_classes = (IsAdminUser, )
+    permission_classes = (IsAdminUser,)
     permission_action_classes = {
-        'list': (permissions.AllowAny, ),
+        'list': (permissions.AllowAny,),
     }
     filter_class = CarouselFilter
 
@@ -308,28 +309,41 @@ class MemberViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RecognizePicture(APIView):
+class RecognizePicture(GenericAPIView):
     """
     主动请求识别人脸
     """
-    authentication_classes = (authentication.JWTAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = FaceRecognizeSerializer
 
+    @method_decorator(swagger_auto_schema(
+        operation_summary='主动请求识别人脸',
+        responses={'200': 'No Content'}
+    ))
     def post(self, request):
-        picture_name = request.data.get('pictureName')
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        picture_name = serializer.data['picture_name']
         current_user = self.request.user
 
         recognize_picture.delay(current_user.id, picture_name)
 
-        return Response({'data': 'success'}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
-class DownloadPictures(APIView):
-    authentication_classes = (authentication.JWTAuthentication,)
+class DownloadPictures(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = DownloadPictureListSerializer
 
+    @method_decorator(swagger_auto_schema(
+        operation_summary='下载当前页面的图片',
+        responses={'200': '下载文件的二进制流'}
+    ))
     def post(self, request):
-        picture_list = request.data.get('picture_list')
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        picture_list = serializer.data['picture_list']
+
         zip_file = BytesIO()
         with zipfile.ZipFile(zip_file, 'a') as f:
             for picture in picture_list:

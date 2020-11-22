@@ -1,19 +1,20 @@
-from typing import Dict
-import requests
 import json
+from typing import Dict
 
+import requests
 from django.conf import settings
 from rest_framework import serializers
 
 from pictures.models import Group, Member, CarouselPicture, Face
-from utils.core.serializers import BasicSerializer
 from utils.core.exceptions import HelloFamilyException
+from utils.core.serializers import BasicSerializer
 
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['name', 'name_jp', 'name_en', 'status', 'created_time', 'homepage', 'color',
+        fields = ['name', 'name_jp', 'name_en', 'status', 'created_time',
+                  'homepage', 'color',
                   'favicon', 'id']
 
 
@@ -135,3 +136,16 @@ class FaceRegisterSerializer(BasicSerializer):
     image = serializers.CharField(label='图片，需要放进formdata里')
     member = serializers.IntegerField(label='成员id')
 
+
+class FaceRecognizeSerializer(BasicSerializer):
+    picture_name = serializers.CharField(label='图片名称')
+
+
+class DownloadPicture(BasicSerializer):
+    name = serializers.CharField(label='图片名称')
+    url = serializers.URLField(label='图片链接')
+
+
+class DownloadPictureListSerializer(BasicSerializer):
+    picture_list = serializers.ListField(
+        label='需要下载的图片列表', child=DownloadPicture())
