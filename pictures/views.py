@@ -18,6 +18,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt import authentication
 from rest_framework.permissions import IsAdminUser
 
+from utils.core.mixins import MultiActionConfViewSetMixin
 from utils.decorators import admin_required_api
 from utils.utils import download_picture, page_limit_skip
 from utils.core.exceptions import HelloFamilyException, ErrorCode
@@ -225,10 +226,13 @@ class MemberFaceAPI(APIView):
         return Response(data)
 
 
-class CarouselPictureViewSet(viewsets.ModelViewSet):
+class CarouselPictureViewSet(MultiActionConfViewSetMixin, viewsets.ModelViewSet):
     serializer_class = CarouselPictureSerializer
     queryset = CarouselPicture.objects.filter()
     permission_classes = (IsAdminUser, )
+    permission_action_classes = {
+        'list': (permissions.AllowAny, ),
+    }
     filter_class = CarouselFilter
 
     def destroy(self, request, *args, **kwargs):

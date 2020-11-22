@@ -58,7 +58,7 @@ def recognize_multi(picture: dict, url: str, image_type: str, save=False,
         'max_user_num': 1,
     }
     response = client.multiSearch(image, image_type, group_id_list, options)
-
+    print(response)
     if save and response['error_msg'] == 'SUCCESS':
         face_to_database(name, response)
     return True
