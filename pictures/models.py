@@ -58,8 +58,7 @@ class Member(models.Model):
         default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name='状态')
     joined_time = models.DateField(verbose_name='进入时间', null=True, blank=True)
     graduated_time = models.DateField(null=True, verbose_name='毕业时间')
-    group = models.ForeignKey(Group, verbose_name='组合',
-                              on_delete=models.DO_NOTHING)
+    group = models.ManyToManyField(Group, verbose_name='组合')
     favicon = models.URLField(null=True, verbose_name='照片')
     color = models.CharField(null=True, max_length=20, verbose_name='成员色')
     birthday = models.DateField(null=True, verbose_name='生日', blank=True)
@@ -95,6 +94,15 @@ class Member(models.Model):
         return members.select_related('group')
 
 
+class MemberFace(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    create_time = models.DateTimeField(auto_now_add=True)
+    face_id = models.CharField(verbose_name='人脸识别的id', max_length=255)
+
+    class Meta:
+        ordering = ('-id',)
+
+
 class CarouselPicture(models.Model):
     STATUS_NORMAL = 1
     STATUS_DELETE = 0
@@ -105,7 +113,8 @@ class CarouselPicture(models.Model):
 
     name = models.CharField(max_length=120, verbose_name='名称')
     image = models.URLField(verbose_name='图片')
-    status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS,
+    status = models.PositiveIntegerField(default=STATUS_NORMAL,
+                                         choices=STATUS_ITEMS,
                                          verbose_name='状态')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
@@ -123,7 +132,8 @@ class Cookie(models.Model):
 
 
 class Picture(models.Model):
-    uuid = models.CharField(verbose_name='id', unique=True, max_length=100)
+    pic_id = models.CharField(verbose_name='id', unique=True, max_length=100)
+    name = models.CharField(verbose_name='图片名字', max_length=255)
     url = models.CharField(verbose_name='链接地址', max_length=255)
     create_time = models.DateTimeField(auto_now_add=True)
     create_date = models.DateField(auto_now_add=True)
@@ -133,6 +143,11 @@ class Picture(models.Model):
 
     class Meta:
         verbose_name = '下载的图片'
+
+    def __str__(self):
+        return f'pic_id: {self.pic_id}, name: {self.name}, url: {self.url}, ' \
+               f'mem_count: {self.mem_count}, download: {self.download}, ' \
+               f'recognized: {self.recognized}'
 
 
 class PictureMember(models.Model):
