@@ -41,13 +41,8 @@ INSTALLED_APPS = [
     'dal_select2',
     'corsheaders',
     'rest_framework',
-    'django_celery_results',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     "channels",
 ]
 
@@ -57,27 +52,16 @@ AUTH_USER_MODEL = 'user.HelloUser'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
     )
 }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'hellofamilyclub.urls'
-
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
 
 THEME = 'bootstrap'
 
@@ -105,13 +89,6 @@ WSGI_APPLICATION = 'hellofamilyclub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -181,38 +158,14 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=15),
 }
 
-# 七牛云
-QINIU_ACCESS_KEY = 'my0I1pVUXhONsc-rO8OvFyofFO9RwITyS02km2JO'
-QINIU_SECRET_KEY = 'LNGNWCm2TZXE-kuMo3iHVyyu4FMkR6CJuvXR2-oi'
-QINIU_BUCKET_NAME = 'hellofamily'
-QINIU_BUCKET_DOMAIN = 'cdn.hellofamily.club'
-DEFAULT_FILE_STORAGE = 'qiniustorage.backends.QiniuStorage'
-QINIU_SECURE_URL = False
-
-PREFIX_URL = 'http://'
-MEDIA_URL = PREFIX_URL + QINIU_BUCKET_DOMAIN + "media/"
-
-
 # Redis缓存
 REDIS_URL = 'redis://127.0.0.1:6379'
-
-CACHES = {
-    'default': 'django_redis.cache.RedisCache',
-    'LOCATION': REDIS_URL,
-    'TIMEOUT': 300,
-    'OPTIONS': {
-        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        'PARSER_CLASS': 'django.connection.HiredisParser',
-    },
-    'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
-}
 
 # CELERY配置
 CELERY_BROKER_URL = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_SERIALIZER = 'json'
-
 
 # Websocket设置
 CHANNEL_LAYERS = {
@@ -223,3 +176,5 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
