@@ -112,3 +112,32 @@ class CarouselPicture(models.Model):
     @property
     def current_images(self):
         return self.objects.filter(status=self.STATUS_NORMAL)
+
+
+class Cookie(models.Model):
+    cookie = models.TextField(verbose_name='cookie')
+    updated_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+
+    class Meta:
+        verbose_name = '爬虫Cookie'
+
+
+class Picture(models.Model):
+    uuid = models.CharField(verbose_name='id', unique=True, max_length=100)
+    url = models.CharField(verbose_name='链接地址', max_length=255)
+    create_time = models.DateTimeField(auto_now_add=True)
+    create_date = models.DateField(auto_now_add=True)
+    mem_count = models.IntegerField(verbose_name='图片里的人数')
+    download = models.BooleanField(default=False, verbose_name='是否已下载')
+    recognized = models.BooleanField(default=False, verbose_name='是否被识别过')
+
+    class Meta:
+        verbose_name = '下载的图片'
+
+
+class PictureMember(models.Model):
+    pic = models.ForeignKey(Picture, on_delete=models.CASCADE)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = '图片和成员的关联关系'

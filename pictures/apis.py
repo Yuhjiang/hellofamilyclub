@@ -14,7 +14,6 @@ from rest_framework_simplejwt import authentication
 from .models import Group, Member, CarouselPicture
 from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer, \
     MemberCreateSerializer
-from .pagination import ListPagination
 from hellofamilyclub.utils.decorators import admin_required_api
 from pictures.tasks import recognize_picture
 from hellofamilyclub.utils.utils import download_picture
@@ -24,7 +23,6 @@ from hellofamilyclub.utils.utils import download_picture
 class CarouselPictureViewSet(viewsets.ModelViewSet):
     serializer_class = CarouselPictureSerializer
     queryset = CarouselPicture.objects.filter()
-    pagination_class = ListPagination
 
     @admin_required_api(message='你没有权限添加图片')
     def create(self, request, *args, **kwargs):
@@ -46,7 +44,6 @@ class CarouselPictureViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
-    pagination_class = ListPagination
 
     def get_queryset(self):
         query_params = self.request.query_params
@@ -91,7 +88,6 @@ class MemberViewSet(viewsets.ModelViewSet):
     # TODO 后续需要在添加或修改成员信息的时候，重新注册一下人脸
     serializer_class = MemberSerializer
     queryset = Member.objects.all().order_by('-status', 'joined_time')
-    pagination_class = ListPagination
 
     def get_queryset(self):
         query_params = self.request.query_params
