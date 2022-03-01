@@ -2,6 +2,7 @@
 早安家族人脸识别模块，调用百度aip
 """
 from django.db import models
+from django.db import transaction
 
 
 class Group(models.Model):
@@ -150,10 +151,32 @@ class Picture(models.Model):
                f'mem_count: {self.mem_count}, download: {self.download}, ' \
                f'recognized: {self.recognized}'
 
+    @transaction.atomic
+    def set_members(self, member_ids):
+        exists = set(PictureMember.objects.filter(
+            pic=self, member_id__in=member_ids).values_list('member_id',
+                                                            flat=True))
+        add = set(member_ids)-exists
+        delete = exists-set(member_ids)
+        PictureMember.objects.filter(pic=self, member_id__in=delete).delete()
+        pm = []
+        for a in add:
+            try:
+                m = Member.objects.get(id=a)
+                pm.append(PictureMember(pic=self, member=m, name_en=m.name_en,
+                                        name_jp=m.name_jp))
+            except Member.DoesNotExist:
+                pass
+        PictureMember.objects.bulk_create(pm)
+        self.recognized = (member_ids != [])
+        self.save(update_fields=['recognized'])
+
 
 class PictureMember(models.Model):
     pic = models.ForeignKey(Picture, on_delete=models.CASCADE)
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    name_en = models.CharField(max_length=255)
+    name_jp = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = '图片和成员的关联关系'

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 import base64
 from utils.core.serializers import BaseSerializer
-from .models import Group, Member, CarouselPicture, MemberFace
+from .models import Group, Member, CarouselPicture, MemberFace, Picture, PictureMember
 from pictures.service import aip_service
 from utils.core.exceptions import HelloFamilyError
 import requests
@@ -78,3 +78,17 @@ class MemberFaceSerializer(serializers.ModelSerializer):
         model = MemberFace
         fields = ('id', 'member', 'face_id', 'create_time', 'name_jp',
                   'name_en', 'name')
+
+
+class MemberInPictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PictureMember
+        fields = ('member_id', 'pic_id', 'name_en', 'name_jp')
+
+
+class PictureWithMemberSerializer(serializers.ModelSerializer):
+    members = MemberInPictureSerializer(source='picturemember_set', many=True)
+
+    class Meta:
+        model = Picture
+        fields = ('id', 'pic_id', 'url', 'recognized', 'members')

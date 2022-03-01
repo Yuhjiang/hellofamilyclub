@@ -2,13 +2,13 @@ import requests
 import json
 from django.conf import settings
 from rest_framework.generics import GenericAPIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 from pictures import serializers
-from pictures.models import Cookie, Group, Member, MemberFace
+from pictures.models import Cookie, Group, Member, MemberFace, Picture, PictureMember
 from utils.core.permissions import AdminPermission
 from utils.core.mixins import MultiActionConfViewSetMixin
 
@@ -83,3 +83,13 @@ class MemberFaceViewSet(MultiActionConfViewSetMixin,
     queryset_action_classes = {
         'list': queryset.select_related('member')
     }
+
+
+class PictureMemberView(mixins.RetrieveModelMixin,
+                        mixins.ListModelMixin,
+                        GenericViewSet):
+    """
+    获取照片和和对应的人脸
+    """
+    queryset = Picture.objects.filter().prefetch_related('picturemember_set__member')
+    serializer_class = serializers.PictureWithMemberSerializer

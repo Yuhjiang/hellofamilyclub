@@ -40,5 +40,16 @@ class AipService(object):
         r = self.client.faceDelete(member, self.group_id, face_token)
         return r['error_code'] == 0
 
+    def multi_search(self, image: bytes, max_face_num = 10, match_threshold=70,
+                     max_user_num=1):
+        options = dict(
+            max_face_num=max_face_num,
+            match_threshold=match_threshold,
+            max_user_num=max_user_num,
+        )
+        response = self.client.multiSearch(image, 'BASE64', self.group_id,
+                                           options)
+        return response
+
 
 aip_service = AipService(settings.APP_GROUP_ID)

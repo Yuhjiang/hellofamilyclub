@@ -40,7 +40,7 @@ def recognize_multi(picture: dict, url: str, image_type: str, save=False,
         # 图片按照日期分文件夹存储
         image_dir = os.path.join(IMAGE_DIR, str(picture['created_time'].date()))
         file_path = os.path.join(image_dir, name)
-        if not os.path.exists(file_path) and redownload:
+        if not os.path.exists(file_pclasath) and redownload:
             # 图片不存在并要重下载
             download_picture(picture['url'], path=image_dir, file_name=name)
         image = image_to_base64(file_path)
