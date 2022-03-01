@@ -96,6 +96,7 @@ class Member(models.Model):
 
 class MemberFace(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    url = models.CharField(max_length=255, help_text='头像地址')
     create_time = models.DateTimeField(auto_now_add=True)
     face_id = models.CharField(verbose_name='人脸识别的id', max_length=255)
 

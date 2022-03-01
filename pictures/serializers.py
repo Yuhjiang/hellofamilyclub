@@ -1,7 +1,10 @@
 from rest_framework import serializers
-
+import base64
 from utils.core.serializers import BaseSerializer
-from .models import Group, Member, CarouselPicture
+from .models import Group, Member, CarouselPicture, MemberFace
+from pictures.service import aip_service
+from utils.core.exceptions import HelloFamilyError
+import requests
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -25,8 +28,6 @@ class MemberSerializerDetail(serializers.ModelSerializer):
 
 
 class MemberSerializer(serializers.ModelSerializer):
-    group = GroupSerializerDetail()
-
     class Meta:
         model = Member
         fields = ['name_jp', 'name_en', 'name', 'status', 'joined_time',
@@ -48,3 +49,33 @@ class CarouselPictureSerializer(serializers.ModelSerializer):
 
 class CookieSerializer(BaseSerializer):
     cookie = serializers.CharField(label='更新cookie')
+
+
+class MemberFaceCreateSerializer(BaseSerializer):
+    url = serializers.URLField(label='图片url地址')
+    member = serializers.IntegerField(label='成员id', write_only=True)
+    face_id = serializers.CharField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+
+    def create(self, validated_data):
+        url = validated_data['url']
+        resp = requests.get(url)
+        picture = resp.content
+        picture = base64.b64encode(picture).decode('utf-8')
+        member = Member.objects.get(id=validated_data['member'])
+        face_id = aip_service.add_face(picture, member.name_en)
+        if not face_id:
+            raise HelloFamilyError(msg='人脸注册失败')
+        return MemberFace.objects.create(member=member, face_id=face_id,
+                                         url=url)
+
+
+class MemberFaceSerializer(serializers.ModelSerializer):
+    name_jp = serializers.CharField(source='member.name_jp')
+    name_en = serializers.CharField(source='member.name_en')
+    name = serializers.CharField(source='member.name')
+
+    class Meta:
+        model = MemberFace
+        fields = ('id', 'member', 'face_id', 'create_time', 'name_jp',
+                  'name_en', 'name')

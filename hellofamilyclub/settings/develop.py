@@ -30,6 +30,7 @@ IMAGE_DIR = '/Users/yuhao/Pictures/hellofamily'
 APP_ID = '14303012'
 API_KEY = 't4GyIHmNULqO50d0RlvY86PV'
 SECRET_KEY = 'VxKOFYYdvvRuk4MGrlyxlg6asArkRUlR'
+APP_GROUP_ID = 'DEVELOP'
 
 REDIS_URL = 'redis://127.0.0.1:6379/1'
 

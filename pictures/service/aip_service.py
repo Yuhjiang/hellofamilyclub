@@ -16,7 +16,7 @@ class AipService(object):
         """
         注册人脸
         :param image: base64格式的图片
-        :param member: 成员名字
+        :param member: 成员名字，默认是name_en
         :return:
         {'error_code': 0, 'error_msg': 'SUCCESS', 'log_id': 1325694738,
         'timestamp': 1646050925, 'cached': 0,
@@ -24,11 +24,11 @@ class AipService(object):
         'location': {'left': 80.33, 'top': 68.65, 'width': 69, 'height': 69,
          'rotation': -1}}}
         """
-        r = self.client.addUser(image, 'BASE64', self.group_id, member)
+        r = self.client.addUser(str(image), 'BASE64', self.group_id, member)
         if r['error_code'] == 0:
             return r['result']['face_token']
         else:
-            LOG.warning('人脸注册失败', r)
+            LOG.warning('人脸注册失败, {}'.format(r))
             return ''
 
     def delete_face(self, member: str, face_token: str) -> bool:
@@ -39,3 +39,6 @@ class AipService(object):
         """
         r = self.client.faceDelete(member, self.group_id, face_token)
         return r['error_code'] == 0
+
+
+aip_service = AipService(settings.APP_GROUP_ID)

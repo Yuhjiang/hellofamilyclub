@@ -2,11 +2,13 @@ import requests
 import json
 from django.conf import settings
 from rest_framework.generics import GenericAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 from pictures import serializers
-from pictures.models import Cookie
+from pictures.models import Cookie, Group, Member, MemberFace
 from utils.core.permissions import AdminPermission
+from utils.core.mixins import MultiActionConfViewSetMixin
 
 
 def get_weibo_response(cookie: str) -> requests.Response:
@@ -39,3 +41,35 @@ class WeiboCookieView(GenericAPIView):
                 return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
         except json.JSONDecodeError:
             return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
+
+
+class GroupViewSet(ModelViewSet):
+    """
+    团体的增删改查
+    """
+    serializer_class = serializers.GroupSerializer
+    queryset = Group.objects.filter()
+
+
+class MemberViewSet(MultiActionConfViewSetMixin,
+                    ModelViewSet):
+    """
+    偶像的增删改查
+    """
+    serializer_class = serializers.MemberSerializer
+    queryset = Member.objects.filter()
+
+
+class MemberFaceViewSet(MultiActionConfViewSetMixin,
+                        ModelViewSet):
+    """
+    偶像人脸注册的增删改查
+    """
+    serializer_class = serializers.MemberFaceSerializer
+    serializer_action_classes = {
+        'create': serializers.MemberFaceCreateSerializer,
+    }
+    queryset = MemberFace.objects.filter()
+    queryset_action_classes = {
+        'list': queryset.select_related('member')
+    }
