@@ -4,6 +4,8 @@ from django.conf import settings
 from rest_framework.generics import GenericAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from pictures import serializers
 from pictures.models import Cookie, Group, Member, MemberFace
@@ -49,6 +51,10 @@ class GroupViewSet(ModelViewSet):
     """
     serializer_class = serializers.GroupSerializer
     queryset = Group.objects.filter()
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    ordering_fields = ('id',)
+    search_fields = ('name', 'name_en', 'name_jp')
+    filterset_fields = ('status', )
 
 
 class MemberViewSet(MultiActionConfViewSetMixin,
@@ -58,6 +64,10 @@ class MemberViewSet(MultiActionConfViewSetMixin,
     """
     serializer_class = serializers.MemberSerializer
     queryset = Member.objects.filter()
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    ordering_fields = ('id',)
+    search_fields = ('name', 'name_en', 'name_jp')
+    filterset_fields = ('status', 'group')
 
 
 class MemberFaceViewSet(MultiActionConfViewSetMixin,

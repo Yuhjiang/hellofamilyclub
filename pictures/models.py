@@ -51,9 +51,9 @@ class Member(models.Model):
         (STATUS_GRADUATED, '毕业')
     )
 
-    name = models.CharField(max_length=50, verbose_name='成员')
-    name_jp = models.CharField(max_length=50, verbose_name='日文')
-    name_en = models.CharField(max_length=50, verbose_name='罗马')
+    name = models.CharField(max_length=50, verbose_name='成员', unique=True)
+    name_jp = models.CharField(max_length=50, verbose_name='日文', unique=True)
+    name_en = models.CharField(max_length=50, verbose_name='罗马', unique=True)
     status = models.PositiveIntegerField(
         default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name='状态')
     joined_time = models.DateField(verbose_name='进入时间', null=True, blank=True)

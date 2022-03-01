@@ -30,8 +30,7 @@ class MemberSerializerDetail(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['name_jp', 'name_en', 'name', 'status', 'joined_time',
-                  'graduated_time', 'color', 'birthday', 'group', 'id']
+        fields = '__all__'
 
 
 class MemberCreateSerializer(serializers.ModelSerializer):

@@ -56,7 +56,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'utils.core.pagination.ListPagination',
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 MIDDLEWARE = [
@@ -161,3 +164,6 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, ' \
 IMAGE_URL = 'http://photo.weibo.com/photos/get_all?uid=2019518032' \
             '&album_id=3555502164890927&count=30&page={}' \
             '&type=3&__rnd=1546678278092'
+
+
+REQUESTS_PROXY = {}

@@ -39,3 +39,8 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = 'hellofamily.club邮件报警'
+
+REQUESTS_PROXY = {
+    'http': 'http://localhost:1087',
+    'https': 'http://localhost:1087',
+}
