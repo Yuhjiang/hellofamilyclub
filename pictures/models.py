@@ -142,6 +142,8 @@ class Picture(models.Model):
     mem_count = models.IntegerField(verbose_name='图片里的人数')
     download = models.BooleanField(default=False, verbose_name='是否已下载')
     recognized = models.BooleanField(default=False, verbose_name='是否被识别过')
+    double = models.CharField(verbose_name='识别出来的人为两个人时，记录两个人的id',
+                              max_length=100)
 
     class Meta:
         verbose_name = '下载的图片'
@@ -168,8 +170,12 @@ class Picture(models.Model):
             except Member.DoesNotExist:
                 pass
         PictureMember.objects.bulk_create(pm)
-        self.recognized = (member_ids != [])
-        self.save(update_fields=['recognized'])
+        self.mem_count = len(member_ids)
+        self.recognized = self.mem_count != 0
+        if self.mem_count == 2:
+            a, b = min(member_ids), max(member_ids)
+            self.double = f'{a}-{b}'
+        self.save(update_fields=['recognized', 'mem_count', 'double'])
 
 
 class PictureMember(models.Model):
