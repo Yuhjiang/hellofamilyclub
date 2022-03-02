@@ -3,7 +3,6 @@ from django.core.mail import send_mail
 from celery import shared_task
 
 from pictures.service.recognize import recognize_multi
-from pictures.service.config import mongo_db
 from hellofamilyclub.utils.websocket import send_message
 
 

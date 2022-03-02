@@ -41,14 +41,13 @@ INSTALLED_APPS = [
     'dal_select2',
     'corsheaders',
     'rest_framework',
-    'django_celery_results',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     "channels",
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
 ]
 
 AUTH_USER_MODEL = 'user.HelloUser'
@@ -57,46 +56,24 @@ AUTH_USER_MODEL = 'user.HelloUser'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'utils.core.pagination.ListPagination',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'hellofamilyclub.urls'
-
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
-
-THEME = 'bootstrap'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'themes', THEME, 'templates')]
-        ,
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
 
 # websocket ASGI
 ASGI_APPLICATION = 'hellofamilyclub.routing.application'
@@ -105,13 +82,6 @@ WSGI_APPLICATION = 'hellofamilyclub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -144,14 +114,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'themes', THEME, 'static')
-]
-
 VERSION = '${version}'
 
 # JWT Token验证的配置信息
@@ -181,38 +143,14 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=15),
 }
 
-# 七牛云
-QINIU_ACCESS_KEY = 'my0I1pVUXhONsc-rO8OvFyofFO9RwITyS02km2JO'
-QINIU_SECRET_KEY = 'LNGNWCm2TZXE-kuMo3iHVyyu4FMkR6CJuvXR2-oi'
-QINIU_BUCKET_NAME = 'hellofamily'
-QINIU_BUCKET_DOMAIN = 'cdn.hellofamily.club'
-DEFAULT_FILE_STORAGE = 'qiniustorage.backends.QiniuStorage'
-QINIU_SECURE_URL = False
-
-PREFIX_URL = 'http://'
-MEDIA_URL = PREFIX_URL + QINIU_BUCKET_DOMAIN + "media/"
-
-
 # Redis缓存
 REDIS_URL = 'redis://127.0.0.1:6379'
-
-CACHES = {
-    'default': 'django_redis.cache.RedisCache',
-    'LOCATION': REDIS_URL,
-    'TIMEOUT': 300,
-    'OPTIONS': {
-        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        'PARSER_CLASS': 'django.connection.HiredisParser',
-    },
-    'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
-}
 
 # CELERY配置
 CELERY_BROKER_URL = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_SERIALIZER = 'json'
-
 
 # Websocket设置
 CHANNEL_LAYERS = {
@@ -223,3 +161,15 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, ' \
+             'like Gecko) Chrome/22.0.1207.1 Safari/537.1'
+
+IMAGE_URL = 'http://photo.weibo.com/photos/get_all?uid=2019518032' \
+            '&album_id=3555502164890927&count=30&page={}' \
+            '&type=3&__rnd=1546678278092'
+
+REQUESTS_PROXY = {}
+
+APPEND_SLASH = False

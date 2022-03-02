@@ -1,23 +1,17 @@
 """
 识别模块
 """
+import logging
 import os
 import time
-import logging
 from datetime import datetime, timedelta
 
 import django
 
-from aip import AipFace
-
-from pictures.service.config import API_KEY, APP_ID, SECRET_KEY, IMAGE_DIR, \
-    mongo_db
 django.setup()
 from pictures.models import Member
 from hellofamilyclub.utils.utils import image_to_base64, download_picture
 
-
-client = AipFace(APP_ID, API_KEY, SECRET_KEY)
 logging.basicConfig(
     level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s -'
                                ' %(message)s')
@@ -43,7 +37,7 @@ def recognize_multi(picture: dict, url: str, image_type: str, save=False,
         # 图片按照日期分文件夹存储
         image_dir = os.path.join(IMAGE_DIR, str(picture['created_time'].date()))
         file_path = os.path.join(image_dir, name)
-        if not os.path.exists(file_path) and redownload:
+        if not os.path.exists(file_pclasath) and redownload:
             # 图片不存在并要重下载
             download_picture(picture['url'], path=image_dir, file_name=name)
         image = image_to_base64(file_path)

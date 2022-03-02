@@ -27,7 +27,6 @@ def login_user(request):
                          'data': {
                              'isAdmin': user.is_admin,
                              'authToken': str(token.access_token),
-                             'role': user.role.permission,
                              'id': user.id,
                              'avatar': user.avatar,
                              'nickname': user.nickname,

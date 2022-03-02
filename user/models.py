@@ -22,25 +22,11 @@ class HelloUserManager(BaseUserManager):
         return user
 
 
-class Role(models.Model):
-    name = models.CharField(max_length=50, verbose_name='角色名')
-    permission = models.PositiveIntegerField(default=1, verbose_name='权限等级')
-    desc = models.CharField(max_length=100, verbose_name='权限描述')
-
-    class Meta:
-        verbose_name = verbose_name_plural = '角色'
-
-    def __str__(self):
-        return self.name
-
-
 class HelloUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, verbose_name='用户名')
     password = models.CharField(max_length=100, verbose_name='密码')
     email = models.EmailField(max_length=100, default='', verbose_name='邮箱')
     phone = models.CharField(max_length=50, default='', verbose_name='电话', null=True)
-    role = models.ForeignKey(Role, verbose_name='角色', default=2,
-                             on_delete=models.DO_NOTHING)
     nickname = models.CharField(max_length=20, verbose_name='昵称', default='匿名用户')
     avatar = models.URLField(verbose_name='头像',
                              default='http://cdn.hellofamily.club/'
@@ -61,11 +47,3 @@ class HelloUser(AbstractUser):
         :return: True or False
         """
         return self.is_admin
-
-    @property
-    def is_superuser(self):
-        """
-        管理员顶级权限
-        :return: True or False
-        """
-        return self.role.permission == 99
