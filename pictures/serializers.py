@@ -92,3 +92,9 @@ class PictureWithMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Picture
         fields = ('id', 'pic_id', 'url', 'recognized', 'members')
+
+
+class PictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Picture
+        fields = ('id', 'pic_id', 'url', 'create_time', 'create_date')

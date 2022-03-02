@@ -93,3 +93,12 @@ class PictureMemberView(mixins.RetrieveModelMixin,
     """
     queryset = Picture.objects.filter().prefetch_related('picturemember_set__member')
     serializer_class = serializers.PictureWithMemberSerializer
+
+
+class PictureView(mixins.ListModelMixin,
+                  GenericViewSet):
+    """
+    获取照片
+    """
+    queryset = Picture.objects.filter()
+    serializer_class = serializers.PictureSerializer

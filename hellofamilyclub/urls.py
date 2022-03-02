@@ -46,11 +46,10 @@ base_urlpatterns = [
     path('upload_picture', upload_picture, name='upload-picture'),
     path('', include(router.urls)),
     path('token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
-    path('login', login_user, name='login-user'),
-    path('register', register_user, name='register-user'),
-    path('picture/', include('pictures.urls')),
+    path('user', include('user.urls')),
+    path('picture', include('pictures.urls')),
 ]
 
 urlpatterns = [
-    path('api/', include(base_urlpatterns))
+    path('api/v1/', include(base_urlpatterns))
 ]

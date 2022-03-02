@@ -46,6 +46,10 @@ INSTALLED_APPS = [
     "channels",
 ]
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
+]
+
 AUTH_USER_MODEL = 'user.HelloUser'
 
 # restframework权限管理，用户token验证
@@ -64,6 +68,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -165,5 +170,6 @@ IMAGE_URL = 'http://photo.weibo.com/photos/get_all?uid=2019518032' \
             '&album_id=3555502164890927&count=30&page={}' \
             '&type=3&__rnd=1546678278092'
 
-
 REQUESTS_PROXY = {}
+
+APPEND_SLASH = False

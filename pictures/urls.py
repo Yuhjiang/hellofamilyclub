@@ -4,6 +4,7 @@ from rest_framework.routers import SimpleRouter
 from pictures import views
 
 router = SimpleRouter('')
+router.register('', views.PictureView, basename='all-picture-view')
 router.register('group', views.GroupViewSet, basename='group-view')
 router.register('member', views.MemberViewSet, basename='member-view')
 router.register('member-face', views.MemberFaceViewSet,
@@ -13,5 +14,5 @@ router.register('with-member', views.PictureMemberView,
 
 urlpatterns = [
     path('cookie', views.WeiboCookieView.as_view(), name='weibo-cookie'),
-    path('', include(router.urls)),
+    path('/', include(router.urls)),
 ]

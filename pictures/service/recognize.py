@@ -1,19 +1,16 @@
 """
 识别模块
 """
+import logging
 import os
 import time
-import logging
 from datetime import datetime, timedelta
 
 import django
 
-from aip import AipFace
-
 django.setup()
 from pictures.models import Member
 from hellofamilyclub.utils.utils import image_to_base64, download_picture
-
 
 logging.basicConfig(
     level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s -'
