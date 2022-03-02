@@ -15,6 +15,18 @@ class GroupSerializer(serializers.ModelSerializer):
                   'favicon', 'id']
 
 
+class GroupListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ('id', 'name', 'name_jp')
+
+
+class MemberListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = ('id', 'name', 'name_jp')
+
+
 class GroupSerializerDetail(serializers.ModelSerializer):
     class Meta:
         model = Group

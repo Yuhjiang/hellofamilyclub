@@ -1,16 +1,18 @@
-import requests
 import json
+
+import requests
 from django.conf import settings
-from rest_framework.generics import GenericAPIView
-from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
-from rest_framework.response import Response
-from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 
 from pictures import serializers
-from pictures.models import Cookie, Group, Member, MemberFace, Picture, PictureMember
-from utils.core.permissions import AdminPermission
+from pictures.filters import SinglePictureFilter, DoublePictureFilter
+from pictures.models import Cookie, Group, Member, MemberFace, Picture
 from utils.core.mixins import MultiActionConfViewSetMixin
+from utils.core.permissions import AdminPermission
 
 
 def get_weibo_response(cookie: str) -> requests.Response:
@@ -54,7 +56,17 @@ class GroupViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     ordering_fields = ('id',)
     search_fields = ('name', 'name_en', 'name_jp')
-    filterset_fields = ('status', )
+    filterset_fields = ('status',)
+
+
+class GroupListView(mixins.ListModelMixin,
+                    GenericViewSet):
+    """
+    获取所有的组合
+    """
+    serializer_class = serializers.GroupListSerializer
+    pagination_class = None
+    queryset = Group.objects.filter()
 
 
 class MemberViewSet(MultiActionConfViewSetMixin,
@@ -68,6 +80,18 @@ class MemberViewSet(MultiActionConfViewSetMixin,
     ordering_fields = ('id',)
     search_fields = ('name', 'name_en', 'name_jp')
     filterset_fields = ('status', 'group')
+
+
+class MemberListView(mixins.ListModelMixin,
+                     GenericViewSet):
+    """
+    获取所有的成员
+    """
+    serializer_class = serializers.MemberListSerializer
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('group',)
+    queryset = Member.objects.filter().order_by('-joined_time')
 
 
 class MemberFaceViewSet(MultiActionConfViewSetMixin,
@@ -91,7 +115,8 @@ class PictureMemberView(mixins.RetrieveModelMixin,
     """
     获取照片和和对应的人脸
     """
-    queryset = Picture.objects.filter().prefetch_related('picturemember_set__member')
+    queryset = Picture.objects.filter().prefetch_related(
+        'picturemember_set__member')
     serializer_class = serializers.PictureWithMemberSerializer
 
 
@@ -100,5 +125,18 @@ class PictureView(mixins.ListModelMixin,
     """
     获取照片
     """
-    queryset = Picture.objects.filter()
+    queryset = Picture.objects.filter().order_by('-create_time')
     serializer_class = serializers.PictureSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = SinglePictureFilter
+
+
+class DoublePictureView(mixins.ListModelMixin,
+                        GenericViewSet):
+    """
+    双成员CP查询
+    """
+    queryset = Picture.objects.filter(mem_count=2).order_by('-create_time')
+    serializer_class = serializers.PictureSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DoublePictureFilter

@@ -43,6 +43,10 @@ class HelloProfileRegister(object):
                     member.group.add(grp)
                 self.members.append(member)
 
+    def set_members(self, members):
+        self.members = members
+
     def add_faces(self):
         for member in self.members:
-            add_face_for_member(member.favicon, member)
+            if member.favicon:
+                add_face_for_member(member.favicon, member)
