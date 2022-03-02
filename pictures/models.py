@@ -97,7 +97,7 @@ class Member(models.Model):
 
 class MemberFace(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
-    url = models.CharField(max_length=255, help_text='头像地址')
+    url = models.CharField(max_length=255, help_text='头像地址', default='')
     create_time = models.DateTimeField(auto_now_add=True)
     face_id = models.CharField(verbose_name='人脸识别的id', max_length=255)
 
@@ -139,11 +139,11 @@ class Picture(models.Model):
     url = models.CharField(verbose_name='链接地址', max_length=255)
     create_time = models.DateTimeField(auto_now_add=True)
     create_date = models.DateField(auto_now_add=True)
-    mem_count = models.IntegerField(verbose_name='图片里的人数')
+    mem_count = models.IntegerField(verbose_name='图片里的人数', default=0)
     download = models.BooleanField(default=False, verbose_name='是否已下载')
     recognized = models.BooleanField(default=False, verbose_name='是否被识别过')
     double = models.CharField(verbose_name='识别出来的人为两个人时，记录两个人的id',
-                              max_length=100)
+                              max_length=100, default='')
 
     class Meta:
         verbose_name = '下载的图片'

@@ -51,5 +51,15 @@ class AipService(object):
                                            options)
         return response
 
+    def get_face_list(self, name_en: str):
+        resp = self.client.faceGetlist(name_en, self.group_id)
+        if resp['error_code'] == 0:
+            return resp['result']['face_list']
+        else:
+            return []
+
+    def get_client(self) -> AipFace:
+        return self.client
+
 
 aip_service = AipService(settings.APP_GROUP_ID)

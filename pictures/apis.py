@@ -15,7 +15,6 @@ from .models import Group, Member, CarouselPicture
 from .serializers import GroupSerializer, MemberSerializer, CarouselPictureSerializer, \
     MemberCreateSerializer
 from hellofamilyclub.utils.decorators import admin_required_api
-from pictures.tasks import recognize_picture
 from hellofamilyclub.utils.utils import download_picture
 
 
@@ -143,7 +142,6 @@ class RecognizePicture(APIView):
         picture_name = request.data.get('pictureName')
         current_user = self.request.user
 
-        recognize_picture.delay(current_user.id, picture_name)
 
         return Response({'data': 'success'}, status=status.HTTP_200_OK)
 
