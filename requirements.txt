@@ -30,7 +30,7 @@ daphne==2.4.1
 Django==3.2.12
 django-autocomplete-light==3.5.1
 django-cors-headers==3.2.1
-django-filter==2.3.0
+django-filter==2.4.0
 django-qiniu-storage==2.3.1
 django-redis==4.11.0
 djangorestframework==3.13.1
