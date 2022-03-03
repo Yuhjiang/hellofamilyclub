@@ -19,11 +19,15 @@ class GroupDO(object):
 
 class MemberDO(object):
     def __init__(self, name_en: str, name_jp: str, img_url: str,
-                 birthday: Optional[date]):
+                 birthday: Optional[date], joined_time: Optional[date]):
         self.name_en = name_en
         self.name_jp = name_jp
         self.img_url = img_url
         self.birthday = birthday
+        self.joined_time = joined_time
+
+    def __repr__(self):
+        return f'name_jp: {self.name_jp}, birthday: {self.birthday}, joined_time: {self.joined_time}'
 
 
 class GroupProfileCrawler(object):
@@ -71,11 +75,27 @@ class GroupProfileCrawler(object):
         name_en = m.find('a').get('href').split('/')[-2]
         name_jp = m.find('h4').text
         if name_jp == '在籍者なし':
-            return MemberDO(name_en, name_jp, '', None)
+            return MemberDO(name_en, name_jp, '', None, None)
         img_url = m.find('img').get('src')
         birthday = m.find_all('dd')[0].text
         birthday = datetime.strptime(birthday, '%Y年%m月%d日').date()
-        return MemberDO(name_en, name_jp, img_url, birthday)
+        joined_time = self.parse_member_joined_date(m.find('a').get('href'))
+        return MemberDO(name_en, name_jp, img_url, birthday, joined_time)
+
+    def parse_member_joined_date(self, site) -> Optional[date]:
+        """
+        从成员的个人主页获取加入团队的日期
+        :return:
+        """
+        site = self.official_site + site
+        resp = requests.get(site, proxies=self.proxies)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        date_str = soup.find_all('dt', class_='question'
+                                 )[-1].find_next().text.split('\u3000')[0]
+        try:
+            return datetime.strptime(date_str, '%Y年%m月%d日').date()
+        except ValueError:
+            return None
 
 
 if __name__ == '__main__':

@@ -17,6 +17,10 @@ class HelloProfileRegister(object):
         self.groups: List[Group] = []
         self.members: List[Member] = []
 
+    def reset_member_status(self):
+        # 重置所有成员为毕业状态
+        Member.objects.filter().update(status=Member.STATUS_GRADUATED)
+
     def save_to_database(self):
         self.crawler.fetch_groups()
         for g in self.crawler.group_list:
@@ -34,7 +38,10 @@ class HelloProfileRegister(object):
                 try:
                     member = Member.objects.get(name_en=m.name_en)
                     member.favicon = m.img_url
-                    member.save(update_fields=['favicon'])
+                    member.status = Member.STATUS_NORMAL
+                    member.joined_time = m.joined_time
+                    member.save(update_fields=['favicon', 'status',
+                                               'joined_time'])
                 except Member.DoesNotExist:
                     member = Member.objects.create(
                         name=m.name_jp, name_en=m.name_en, name_jp=m.name_jp,

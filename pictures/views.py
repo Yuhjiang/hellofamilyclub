@@ -91,7 +91,7 @@ class MemberListView(mixins.ListModelMixin,
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('group',)
-    queryset = Member.objects.filter().order_by('-joined_time')
+    queryset = Member.objects.filter().order_by('-status', 'joined_time')
 
 
 class MemberFaceViewSet(MultiActionConfViewSetMixin,
