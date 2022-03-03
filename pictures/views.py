@@ -13,6 +13,8 @@ from pictures.filters import SinglePictureFilter, DoublePictureFilter
 from pictures.models import Cookie, Group, Member, MemberFace, Picture
 from utils.core.mixins import MultiActionConfViewSetMixin
 from utils.core.permissions import AdminPermission
+from pictures.service import WeiboCrawler
+from utils.cache import cache_client
 
 
 def get_weibo_response(cookie: str) -> requests.Response:
@@ -40,6 +42,7 @@ class WeiboCookieView(GenericAPIView):
                 c, _ = Cookie.objects.get_or_create(id=1)
                 c.cookie = cookie_str
                 c.save()
+                cache_client.delete(WeiboCrawler.ALERT_EMAIL_KEY)
                 return Response({'status': 200, 'errMsg': 'Cookie更新成功'})
             else:
                 return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
@@ -66,7 +69,7 @@ class GroupListView(mixins.ListModelMixin,
     """
     serializer_class = serializers.GroupListSerializer
     pagination_class = None
-    queryset = Group.objects.filter()
+    queryset = Group.objects.filter().order_by('-status', 'created_time')
 
 
 class MemberViewSet(MultiActionConfViewSetMixin,
@@ -91,7 +94,7 @@ class MemberListView(mixins.ListModelMixin,
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('group',)
-    queryset = Member.objects.filter().order_by('-joined_time')
+    queryset = Member.objects.filter().order_by('-status', 'joined_time')
 
 
 class MemberFaceViewSet(MultiActionConfViewSetMixin,
