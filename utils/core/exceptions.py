@@ -5,7 +5,8 @@ class WeiboFetchCookieError(Exception):
     """
     cookie失效
     """
-    pass
+    def __init__(self, detail):
+        self.detail = detail
 
 
 class HelloFamilyError(APIException):

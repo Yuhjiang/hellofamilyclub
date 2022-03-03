@@ -7,6 +7,7 @@ from typing import List
 import requests
 from django.conf import settings
 from django.utils import timezone
+from datetime import datetime
 
 from hellofamilyclub.utils.utils import download_picture
 from pictures.models import Cookie
@@ -17,8 +18,11 @@ LOG = logging.getLogger(__name__)
 
 
 class WeiboCrawler(object):
+    ALERT_EMAIL_KEY = 'weibo:crawler:alert:'
+
     def __init__(self, start: int, end: int, save: bool = False,
-                 download: bool = False, interval: int = 60):
+                 download: bool = False, interval: int = 60,
+                 skip: bool = True):
         """
         微博照片爬虫服务
         :param start: 开始爬虫页面
@@ -34,6 +38,16 @@ class WeiboCrawler(object):
         self._cookie = _cookie
         self.pic_to_save: List[Picture] = []
         self.interval = interval
+        self.skip = skip    # 是否跳过已经爬取过的
+        self.stop = False
+
+    def stop_fetch(self) -> bool:
+        if self.skip:
+            self.stop = True
+        return self.stop
+
+    def should_stop_fetch(self):
+        return self.stop
 
     def do_fetch(self):
         logging.info('开始爬取微博照片')
@@ -41,6 +55,9 @@ class WeiboCrawler(object):
             data = self.get_one_page(page)
             self.process_pic_list(data)
             time.sleep(self.interval)
+            if self.should_stop_fetch():
+                LOG.info('获取到重复的图片，停止爬虫')
+                break
         self.save_pictures()
         logging.info('结束爬取微博照片')
 
@@ -55,18 +72,25 @@ class WeiboCrawler(object):
             return data['data']['photo_list']
         except json.JSONDecodeError:
             logging.error('cookie失效', res.text[:100])
-            raise WeiboFetchCookieError()
+            raise WeiboFetchCookieError(res.text)
 
     def process_pic_list(self, data: List):
         for d in data:
             try:
                 pic = Picture.objects.get(pic_id=d['photo_id'])
+                if self.stop_fetch():
+                    return
             except Picture.DoesNotExist:
+                timestamp = d['timestamp']
+                date_time = datetime.fromtimestamp(timestamp)
+                create_time = timezone.make_aware(date_time, timezone=timezone.utc)
                 pic = Picture(
                     pic_id=d['photo_id'],
                     name=d['pic_name'],
                     url=d['pic_host'] + '/mw690/' + d['pic_name'],
                     mem_count=0,
+                    create_time=create_time,
+                    create_date=timezone.localdate(create_time),
                 )
                 if self.save:
                     self.pic_to_save.append(pic)

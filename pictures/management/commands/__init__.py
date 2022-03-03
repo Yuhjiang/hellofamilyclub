@@ -1,0 +1,2 @@
+from pictures.management.commands.picture_recognize import picture_recognize
+from pictures.management.commands.weibo_script import weibo_script

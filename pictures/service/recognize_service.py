@@ -1,25 +1,27 @@
-from pictures.models import Picture, Member
-from pictures.service import aip_service
-import requests
 import base64
 import logging
+import time
 from typing import List, Dict
+
+import requests
+
+from pictures.models import Picture, Member
+from pictures.service import aip_service
 
 LOG = logging.getLogger(__name__)
 
 
 class RecognizeService(object):
-    def __init__(self, redo=False):
-        queryset = Picture.objects.filter()
-        if not redo:
-            queryset = queryset.filter(recognized=False)
+    def __init__(self, queryset, interval=0.5):
         self.pictures = list(queryset)
         self.member_cache: Dict[str, int] = {}
+        self.interval = interval
 
     def recognize_all(self):
         for pic in self.pictures:
             member_ids = self.recognize(pic)
             pic.set_members(member_ids)
+            time.sleep(0.5)
 
     def recognize(self, pic: Picture) -> List[int]:
         ids = []
@@ -46,4 +48,3 @@ class RecognizeService(object):
                 except Member.DoesNotExist:
                     pass
         return ids
-
