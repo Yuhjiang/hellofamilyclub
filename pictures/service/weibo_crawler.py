@@ -83,14 +83,13 @@ class WeiboCrawler(object):
             except Picture.DoesNotExist:
                 timestamp = d['timestamp']
                 date_time = datetime.fromtimestamp(timestamp)
-                create_time = timezone.make_aware(date_time, timezone=timezone.utc)
                 pic = Picture(
                     pic_id=d['photo_id'],
                     name=d['pic_name'],
                     url=d['pic_host'] + '/mw690/' + d['pic_name'],
                     mem_count=0,
-                    create_time=create_time,
-                    create_date=timezone.localdate(create_time),
+                    create_time=date_time.astimezone(timezone.utc),
+                    create_date=date_time.date(),
                 )
                 if self.save:
                     self.pic_to_save.append(pic)

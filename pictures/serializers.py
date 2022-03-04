@@ -43,6 +43,18 @@ class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = '__all__'
+        extra_kwargs = {
+            'hometown': {'allow_blank': True},
+            'nickname': {'allow_blank': True},
+        }
+
+
+class MemberWithGroupListSerializer(serializers.ModelSerializer):
+    group_names = serializers.StringRelatedField(many=True, source='group')
+
+    class Meta:
+        model = Member
+        fields = '__all__'
 
 
 class MemberCreateSerializer(serializers.ModelSerializer):
