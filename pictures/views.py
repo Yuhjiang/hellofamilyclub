@@ -50,7 +50,8 @@ class WeiboCookieView(GenericAPIView):
             return Response({'status': 500, 'errMsg': 'Cookie更新失败'})
 
 
-class GroupViewSet(ModelViewSet):
+class GroupViewSet(MultiActionConfViewSetMixin,
+                   ModelViewSet):
     """
     团体的增删改查
     """
@@ -60,6 +61,11 @@ class GroupViewSet(ModelViewSet):
     ordering_fields = ('id',)
     search_fields = ('name', 'name_en', 'name_jp')
     filterset_fields = ('status',)
+    permission_classes = (AdminPermission, )
+    permission_action_classes = {
+        'list': (),
+        'retrieve': (),
+    }
 
 
 class GroupListView(mixins.ListModelMixin,
@@ -78,11 +84,19 @@ class MemberViewSet(MultiActionConfViewSetMixin,
     偶像的增删改查
     """
     serializer_class = serializers.MemberSerializer
-    queryset = Member.objects.filter()
+    queryset = Member.objects.filter().order_by('-id')
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     ordering_fields = ('id',)
     search_fields = ('name', 'name_en', 'name_jp')
     filterset_fields = ('status', 'group')
+    permission_classes = (AdminPermission,)
+    permission_action_classes = {
+        'list': (),
+        'retrieve': (),
+    }
+    serializer_action_classes = {
+        'list': serializers.MemberWithGroupListSerializer,
+    }
 
 
 class MemberListView(mixins.ListModelMixin,
@@ -94,7 +108,7 @@ class MemberListView(mixins.ListModelMixin,
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('group',)
-    queryset = Member.objects.filter().order_by('-status', 'joined_time')
+    queryset = Member.objects.filter().order_by('-status', 'joined_time', 'id')
 
 
 class MemberFaceViewSet(MultiActionConfViewSetMixin,
