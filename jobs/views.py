@@ -28,7 +28,7 @@ job_defaults = {
 
 
 def close_connections(event):
-    LOG.info('关闭定时任务数据库连接')
+    LOG.info(f'{event.job_id}:关闭定时任务数据库连接')
     connections.close_all()
 
 
@@ -37,9 +37,9 @@ scheduler = BlockingScheduler(jobstores=jobstores, executors=executors,
 scheduler.add_listener(close_connections,
                        events.EVENT_JOB_EXECUTED | events.EVENT_JOB_ERROR)
 
-scheduler.add_job(weibo_script, trigger='cron', minute='*/1',
+scheduler.add_job(weibo_script, trigger='cron', hour='*/1',
                   replace_existing=True, id='fetch_weibo_pictures',
                   max_instances=1)
-scheduler.add_job(picture_recognize, trigger='cron', minute='*/1',
+scheduler.add_job(picture_recognize, trigger='cron', hour='*/1',
                   replace_existing=True, id='recognize_all_pictures',
                   max_instances=1)
