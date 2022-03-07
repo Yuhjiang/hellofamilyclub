@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 
 from pictures import serializers
-from pictures.filters import SinglePictureFilter, DoublePictureFilter
+from pictures.filters import SinglePictureFilter, DoublePictureFilter, MemberFilter
 from pictures.models import Cookie, Group, Member, MemberFace, Picture
 from utils.core.mixins import MultiActionConfViewSetMixin
 from utils.core.permissions import AdminPermission
@@ -88,7 +88,7 @@ class MemberViewSet(MultiActionConfViewSetMixin,
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     ordering_fields = ('id',)
     search_fields = ('name', 'name_en', 'name_jp')
-    filterset_fields = ('status', 'group')
+    filterset_class = MemberFilter
     permission_classes = (AdminPermission,)
     permission_action_classes = {
         'list': (),

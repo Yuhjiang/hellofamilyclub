@@ -19,9 +19,12 @@ class RecognizeService(object):
 
     def recognize_all(self):
         for pic in self.pictures:
-            member_ids = self.recognize(pic)
-            pic.set_members(member_ids)
-            time.sleep(0.5)
+            try:
+                member_ids = self.recognize(pic)
+                pic.set_members(member_ids)
+                time.sleep(0.5)
+            except Exception as e:
+                LOG.error('人脸识别失败, 异常内容: {}'.format(e))
 
     def recognize(self, pic: Picture) -> List[int]:
         ids = []
