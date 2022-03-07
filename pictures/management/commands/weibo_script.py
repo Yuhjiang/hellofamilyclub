@@ -15,7 +15,6 @@ LOG = logging.getLogger(__name__)
 
 
 def weibo_script():
-    LOG.info('开始微博爬虫')
     crawler = WeiboCrawler(1, 20, save=True, download=False, interval=10)
     try:
         crawler.do_fetch()
