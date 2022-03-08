@@ -1,10 +1,13 @@
-from rest_framework import serializers
 import base64
-from utils.core.serializers import BaseSerializer
-from .models import Group, Member, CarouselPicture, MemberFace, Picture, PictureMember
+
+import requests
+from rest_framework import serializers
+
 from pictures.service import aip_service
 from utils.core.exceptions import HelloFamilyError
-import requests
+from utils.core.serializers import BaseSerializer
+from .models import Group, Member, CarouselPicture, MemberFace, Picture, \
+    PictureMember
 
 
 class GroupSerializer(serializers.ModelSerializer):

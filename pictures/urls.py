@@ -21,5 +21,7 @@ router.register('group-history', views.GroupHistoryView,
 urlpatterns = [
     path('/cookie', views.WeiboCookieView.as_view(), name='weibo-cookie'),
     path('/recognize', views.RecognizeView.as_view(), name='recognize-view'),
+    path('/member-history', views.MemberHistoryView.as_view(),
+         name='member-history-view'),
     path('/', include(router.urls)),
 ]

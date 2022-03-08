@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 
 import requests
 from django.conf import settings
@@ -189,3 +190,22 @@ class RecognizeView(GenericAPIView):
             return Response({'members': names, 'error': 200})
         else:
             return Response({'errMsg': '没有识别到成员', 'error': 500})
+
+
+class MemberHistoryView(GenericAPIView):
+    """
+    成员的历史记录
+    """
+    queryset = Member.objects.filter().order_by('joined_time', '-status')
+    serializer_class = serializers.MemberSerializer
+
+    def get(self, request, *args, **kwargs):
+        members = self.filter_queryset(self.get_queryset())
+        member_dict = defaultdict(list)
+        for m in members:
+            data = self.get_serializer(m)
+            member_dict[m.joined_time].append(data.data)
+        member_list = []
+        for k, v in member_dict.items():
+            member_list.append({'joined_time': k, 'members': v})
+        return Response(member_list)
