@@ -16,10 +16,16 @@ class RecognizeService(object):
     RECOGNIZE_ERROR_KEY = 'recognize:error:pic:'
     ERROR_TIMEOUT = 60 * 60 * 24
 
-    def __init__(self, queryset, interval=0.5):
+    def __init__(self, queryset, interval=0.5, timeout=5):
+        """
+        :param queryset: 需要进行人脸识别的图片
+        :param interval: 两次人脸识别的间隔，由于使用的免费的百度云API，1s只能调用两次
+        :param timeout: 请求图片的超时时间
+        """
         self.pictures: List[Picture] = list(queryset)
         self.member_cache: Dict[str, int] = {}
         self.interval = interval
+        self.timeout = timeout
 
     @classmethod
     def error_key(cls, pic_id: str):
@@ -44,7 +50,7 @@ class RecognizeService(object):
 
     def recognize(self, pic: Picture) -> List[int]:
         ids = []
-        resp = requests.get(pic.url)
+        resp = requests.get(pic.url, timeout=self.timeout)
         image = base64.b64encode(resp.content).decode('utf-8')
         resp = aip_service.multi_search(image)
         if resp['error_code'] != 0:

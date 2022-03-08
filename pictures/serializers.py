@@ -122,3 +122,10 @@ class PictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Picture
         fields = ('id', 'pic_id', 'url', 'create_time', 'create_date')
+
+
+class RecognizeSerializer(BaseSerializer):
+    """
+    人脸识别调用接口
+    """
+    id = serializers.IntegerField(label='图片id')

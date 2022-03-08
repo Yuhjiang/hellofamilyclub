@@ -40,6 +40,6 @@ scheduler.add_listener(close_connections,
 scheduler.add_job(weibo_script, trigger='cron', hour='*/1',
                   replace_existing=True, id='fetch_weibo_pictures',
                   max_instances=1)
-scheduler.add_job(picture_recognize, trigger='cron', hour='*/1',
+scheduler.add_job(picture_recognize, trigger='cron', minute='*/1',
                   replace_existing=True, id='recognize_all_pictures',
                   max_instances=1)

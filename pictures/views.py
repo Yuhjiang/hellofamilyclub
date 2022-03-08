@@ -9,12 +9,13 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 
 from pictures import serializers
-from pictures.filters import SinglePictureFilter, DoublePictureFilter, MemberFilter
+from pictures.filters import SinglePictureFilter, DoublePictureFilter, \
+    MemberFilter
 from pictures.models import Cookie, Group, Member, MemberFace, Picture
+from pictures.service import WeiboCrawler, RecognizeService
+from utils.cache import cache_client
 from utils.core.mixins import MultiActionConfViewSetMixin
 from utils.core.permissions import AdminPermission
-from pictures.service import WeiboCrawler
-from utils.cache import cache_client
 
 
 def get_weibo_response(cookie: str) -> requests.Response:
@@ -61,7 +62,7 @@ class GroupViewSet(MultiActionConfViewSetMixin,
     ordering_fields = ('id',)
     search_fields = ('name', 'name_en', 'name_jp')
     filterset_fields = ('status',)
-    permission_classes = (AdminPermission, )
+    permission_classes = (AdminPermission,)
     permission_action_classes = {
         'list': (),
         'retrieve': (),
@@ -157,3 +158,34 @@ class DoublePictureView(mixins.ListModelMixin,
     serializer_class = serializers.PictureSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DoublePictureFilter
+
+
+class GroupHistoryView(mixins.ListModelMixin,
+                       GenericViewSet):
+    """
+    展示hello project所有的组合
+    """
+    queryset = Group.objects.filter().order_by('created_time')
+    serializer_class = serializers.GroupSerializer
+    pagination_class = None
+
+
+class RecognizeView(GenericAPIView):
+    """
+    识别人脸的接口
+    """
+    serializer_class = serializers.RecognizeSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        pic = Picture.objects.get(id=serializer.validated_data['id'])
+        service = RecognizeService([])
+        members = service.recognize(pic)
+        if members:
+            pic.set_members(members)
+            names = Member.objects.filter(id__in=members).values_list(
+                'name', flat=True)
+            return Response({'members': names, 'error': 200})
+        else:
+            return Response({'errMsg': '没有识别到成员', 'error': 500})
