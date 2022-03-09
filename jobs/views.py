@@ -7,7 +7,8 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from django.conf import settings
 from django.db import connections
 
-from pictures.management.commands import picture_recognize, weibo_script
+from pictures.management.commands import picture_recognize, weibo_script, \
+    save_homepage_picture
 
 LOG = logging.getLogger(__name__)
 jobstores = {
@@ -42,4 +43,7 @@ scheduler.add_job(weibo_script, trigger='cron', hour='*/1',
                   max_instances=1)
 scheduler.add_job(picture_recognize, trigger='cron', hour='*/1',
                   replace_existing=True, id='recognize_all_pictures',
+                  max_instances=1)
+scheduler.add_job(save_homepage_picture, trigger='cron', hour='0',
+                  replace_existing=True, id='save_homepage_picture',
                   max_instances=1)

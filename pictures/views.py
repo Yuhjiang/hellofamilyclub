@@ -12,7 +12,8 @@ from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from pictures import serializers
 from pictures.filters import SinglePictureFilter, DoublePictureFilter, \
     MemberFilter
-from pictures.models import Cookie, Group, Member, MemberFace, Picture
+from pictures.models import Cookie, Group, Member, MemberFace, Picture, \
+    CarouselPicture
 from pictures.service import WeiboCrawler, RecognizeService
 from utils.cache import cache_client
 from utils.core.mixins import MultiActionConfViewSetMixin
@@ -209,3 +210,14 @@ class MemberHistoryView(GenericAPIView):
         for k, v in member_dict.items():
             member_list.append({'joined_time': k, 'members': v})
         return Response(member_list)
+
+
+class CarouselPictureView(mixins.ListModelMixin,
+                          GenericViewSet):
+    """
+    首页的滚动图片
+    """
+    queryset = CarouselPicture.objects.filter(
+        status=CarouselPicture.STATUS_NORMAL).order_by('-created_time')
+    serializer_class = serializers.CarouselPictureSerializer
+    pagination_class = None

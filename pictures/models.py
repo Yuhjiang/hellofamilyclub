@@ -124,6 +124,9 @@ class CarouselPicture(models.Model):
     def current_images(self):
         return self.objects.filter(status=self.STATUS_NORMAL)
 
+    def __str__(self):
+        return f'name={self.name}, url={self.image}'
+
 
 class Cookie(models.Model):
     cookie = models.TextField(verbose_name='cookie')

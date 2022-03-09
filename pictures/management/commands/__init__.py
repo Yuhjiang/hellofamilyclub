@@ -1,2 +1,3 @@
+from pictures.management.commands.hello_homepage import save_homepage_picture
 from pictures.management.commands.picture_recognize import picture_recognize
 from pictures.management.commands.weibo_script import weibo_script
