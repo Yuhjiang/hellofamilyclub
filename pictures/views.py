@@ -221,3 +221,52 @@ class CarouselPictureView(mixins.ListModelMixin,
         status=CarouselPicture.STATUS_NORMAL).order_by('-created_time')
     serializer_class = serializers.CarouselPictureSerializer
     pagination_class = None
+
+
+def list_picture_to_date_group(data):
+    date_group = defaultdict(list)
+    for d in data:
+        date_group[d['create_date']].append(d)
+    return [{'create_date': k, 'pictures': v} for k, v in date_group.items()]
+
+
+class TimelinePictureView(mixins.ListModelMixin,
+                          GenericViewSet):
+    """
+    按照时间线展示用户
+    """
+    queryset = Picture.objects.filter().order_by('-create_time')
+    serializer_class = serializers.PictureSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = SinglePictureFilter
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        data = list_picture_to_date_group(serializer.data)
+        return Response({
+            'count': self.paginator.page.paginator.count,
+            'results': data,
+        })
+
+
+class TimelineDoublePictureView(mixins.ListModelMixin,
+                                GenericViewSet):
+    """
+    双成员CP查询
+    """
+    queryset = Picture.objects.filter(mem_count=2).order_by('-create_time')
+    serializer_class = serializers.PictureSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DoublePictureFilter
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        data = list_picture_to_date_group(serializer.data)
+        return Response({
+            'count': self.paginator.page.paginator.count,
+            'results': data,
+        })

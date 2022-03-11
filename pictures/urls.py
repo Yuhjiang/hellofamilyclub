@@ -19,6 +19,10 @@ router.register('group-history', views.GroupHistoryView,
                 basename='group-history-view')
 router.register('carousel-picture', views.CarouselPictureView,
                 basename='carousel-picture-view')
+router.register('timeline-single', views.TimelinePictureView,
+                basename='timeline-picture-single')
+router.register('timeline-double', views.TimelineDoublePictureView,
+                basename='timeline-picture-double')
 
 urlpatterns = [
     path('/cookie', views.WeiboCookieView.as_view(), name='weibo-cookie'),
