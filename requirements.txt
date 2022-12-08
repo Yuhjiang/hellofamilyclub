@@ -15,7 +15,7 @@ billiard==3.6.3.0
 brotlipy==0.7.0
 cchardet==2.1.6
 celery==4.4.1
-certifi==2019.11.28
+certifi==2022.12.7
 cffi==1.14.0
 channels==3.0.4
 channels-redis==3.3.1
